@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "257576196101",
+    "firebase_url": "https://rc-student-diary-5cad7-default-rtdb.firebaseio.com",
+    "project_id": "rc-student-diary-5cad7",
+    "storage_bucket": "rc-student-diary-5cad7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257576196101:android:4770996676b3ed8ec5646c",
+        "android_client_info": {
+          "package_name": "com.rcdiarycollegedept.admin_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257576196101-o4n0felondad87deb8h56q4n5sihohqb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhig0FPhNcrwHvlHMiAGYb_BFa12pyXzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257576196101-o4n0felondad87deb8h56q4n5sihohqb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:257576196101:android:7322ae91c5701391c5646c",
+        "android_client_info": {
+          "package_name": "com.rcdiarycollegedept.rcstudentdiary"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "257576196101-o4n0felondad87deb8h56q4n5sihohqb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhig0FPhNcrwHvlHMiAGYb_BFa12pyXzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "257576196101-o4n0felondad87deb8h56q4n5sihohqb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
