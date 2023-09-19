@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.calendar:
                     break;
                 case R.id.handbook:
+                    Intent handbookIntent = new Intent(this, DiaryActivity.class);
+                    startActivity(handbookIntent);
                     break;
                 case R.id.setting:
                     break;
