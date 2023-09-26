@@ -14,35 +14,31 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RCStudentDiary"
         tools:targetApi="31">
-
         <activity android:name=".MainActivity">
+
             <!-- Your main activity -->
         </activity>
-
         <activity
             android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".DiaryActivity"
             android:label="Diary Activity">
+
             <!-- Include any intent filters if needed -->
         </activity>
         <activity
             android:name=".DiaryLayout1"
-            android:label="Diary Layout 1">
-        </activity>
-
+            android:label="Diary Layout 1" />
         <activity
             android:name=".DiaryLayout2"
-            android:label="Diary Layout 2">
-        </activity>
-
+            android:label="Diary Layout 2" />
 
         <meta-data
             android:name="preloaded_fonts"

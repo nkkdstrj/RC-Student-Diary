@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.note:
                     break;
                 case R.id.calendar:
+                    replaceFragment(new CalendarFragment());
                     break;
                 case R.id.handbook:
                     Intent handbookIntent = new Intent(this, DiaryActivity.class);

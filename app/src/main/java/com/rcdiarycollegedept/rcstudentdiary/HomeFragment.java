@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.rcdiarycollegedept.rcstudentdiary.databinding.ActivityHomeBinding;
 
 public class HomeFragment extends Fragment {
 

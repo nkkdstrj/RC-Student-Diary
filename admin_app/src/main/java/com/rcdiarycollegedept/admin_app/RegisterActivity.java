@@ -15,8 +15,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class RegisterActivity extends AppCompatActivity {
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
+public class RegisterActivity extends AppCompatActivity {
 
     EditText fullName, studNum, phoneNum, passWord, confPass;
     Button regBtn;
@@ -41,38 +43,56 @@ public class RegisterActivity extends AppCompatActivity {
                 String name = fullName.getText().toString();
                 String sNum = studNum.getText().toString();
                 String pNum = phoneNum.getText().toString();
-                String pWord= passWord.getText().toString();
+                String pWord = passWord.getText().toString();
                 String conPasWd = confPass.getText().toString();
 
-                if(name.isEmpty() || sNum.isEmpty() || pNum.isEmpty() || pWord.isEmpty() || conPasWd.isEmpty()){
+                if (name.isEmpty() || sNum.isEmpty() || pNum.isEmpty() || pWord.isEmpty() || conPasWd.isEmpty()) {
                     Toast.makeText(RegisterActivity.this, "Please fill all details.", Toast.LENGTH_SHORT).show();
                 } else if (!pWord.equals(conPasWd)) {
                     Toast.makeText(RegisterActivity.this, "Password don't match.", Toast.LENGTH_SHORT).show();
                 } else {
+                    String hashedPassword = hashPassword(pWord); // Hash the password
 
-                    dbRef.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (snapshot.hasChild(sNum)){
-                                Toast.makeText(RegisterActivity.this, "Student Number is already registered.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                dbRef.child("Users").child(sNum).child("FullName").setValue(name);
-                                dbRef.child("Users").child(sNum).child("PhoneNumber").setValue(pNum);
-                                dbRef.child("Users").child(sNum).child("PassWord").setValue(pWord);
-
-                                Toast.makeText(RegisterActivity.this, "User registered successfully.", Toast.LENGTH_SHORT).show();
-                                finish();
+                    if (hashedPassword != null) {
+                        dbRef.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.hasChild(sNum)) {
+                                    Toast.makeText(RegisterActivity.this, "Student Number is already registered.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    dbRef.child("Users").child(sNum).child("FullName").setValue(name);
+                                    dbRef.child("Users").child(sNum).child("PhoneNumber").setValue(pNum);
+                                    dbRef.child("Users").child(sNum).child("PassWord").setValue(hashedPassword); // Store the hashed password
+                                    Toast.makeText(RegisterActivity.this, "User registered successfully.", Toast.LENGTH_SHORT).show();
+                                    finish();
+                                }
                             }
-                        }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                // Handle database error, if needed
+                            }
+                        });
+                    } else {
+                        // Handle hashing error, if it occurs
+                    }
                 }
             }
         });
+    }
 
+    private static String hashPassword(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = md.digest(password.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
