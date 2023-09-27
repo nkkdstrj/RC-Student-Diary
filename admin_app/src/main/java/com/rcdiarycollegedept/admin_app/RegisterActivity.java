@@ -9,11 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -22,7 +23,8 @@ public class RegisterActivity extends AppCompatActivity {
 
     EditText fullName, studNum, phoneNum, passWord, confPass;
     Button regBtn;
-    DatabaseReference dbRef = FirebaseDatabase.getInstance().getReferenceFromUrl("https://rc-student-diary-5cad7-default-rtdb.firebaseio.com/");
+    FirebaseAuth firebaseAuth;
+    DatabaseReference dbRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +37,12 @@ public class RegisterActivity extends AppCompatActivity {
         passWord = findViewById(R.id.editTextPassword);
         confPass = findViewById(R.id.editTextConfirmPass);
         regBtn = findViewById(R.id.RegBtn);
+        firebaseAuth = FirebaseAuth.getInstance();
+        dbRef = FirebaseDatabase.getInstance().getReferenceFromUrl("https://rc-student-diary-5cad7-default-rtdb.firebaseio.com/");
 
         regBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 String name = fullName.getText().toString();
                 String sNum = studNum.getText().toString();
                 String pNum = phoneNum.getText().toString();
@@ -51,48 +54,37 @@ public class RegisterActivity extends AppCompatActivity {
                 } else if (!pWord.equals(conPasWd)) {
                     Toast.makeText(RegisterActivity.this, "Password don't match.", Toast.LENGTH_SHORT).show();
                 } else {
-                    String hashedPassword = hashPassword(pWord); // Hash the password
-
-                    if (hashedPassword != null) {
-                        dbRef.child("Users").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.hasChild(sNum)) {
-                                    Toast.makeText(RegisterActivity.this, "Student Number is already registered.", Toast.LENGTH_SHORT).show();
-                                } else {
-                                    dbRef.child("Users").child(sNum).child("FullName").setValue(name);
-                                    dbRef.child("Users").child(sNum).child("PhoneNumber").setValue(pNum);
-                                    dbRef.child("Users").child(sNum).child("PassWord").setValue(hashedPassword); // Store the hashed password
-                                    Toast.makeText(RegisterActivity.this, "User registered successfully.", Toast.LENGTH_SHORT).show();
-                                    finish();
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                // Handle database error, if needed
-                            }
-                        });
-                    } else {
-                        // Handle hashing error, if it occurs
-                    }
+                    registerUserWithEmailPassword(name, sNum, pNum, pWord);
                 }
             }
         });
     }
 
-    private static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hashBytes = md.digest(password.getBytes());
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashBytes) {
-                sb.append(String.format("%02x", b));
-            }
-            return sb.toString();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+    private void registerUserWithEmailPassword(final String name, final String sNum, final String pNum, String password) {
+        firebaseAuth.createUserWithEmailAndPassword(sNum + "@example.com", password)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = firebaseAuth.getCurrentUser();
+                        if (user != null) {
+                            // Successfully registered, now save additional user data to the database
+                            dbRef.child("Users").child(sNum).child("FullName").setValue(name);
+                            dbRef.child("Users").child(sNum).child("PhoneNumber").setValue(pNum);
+
+                            Toast.makeText(RegisterActivity.this, "User registered successfully.", Toast.LENGTH_SHORT).show();
+                            finish();
+                        }
+                    } else {
+                        try {
+                            throw task.getException();
+                        } catch (FirebaseAuthUserCollisionException e) {
+                            Toast.makeText(RegisterActivity.this, "User with this student number already exists.", Toast.LENGTH_SHORT).show();
+                        } catch (FirebaseAuthInvalidCredentialsException e) {
+                            Toast.makeText(RegisterActivity.this, "Invalid student number format.", Toast.LENGTH_SHORT).show();
+                        } catch (Exception e) {
+                            Toast.makeText(RegisterActivity.this, "Registration failed. Please try again later.", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        }
+                    }
+                });
     }
 }
