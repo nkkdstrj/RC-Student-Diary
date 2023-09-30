@@ -34,13 +34,13 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new HomeFragment());
                     break;
                 case R.id.note:
+
                     break;
                 case R.id.calendar:
                     replaceFragment(new CalendarFragment());
                     break;
                 case R.id.handbook:
-                    Intent handbookIntent = new Intent(this, DiaryActivity.class);
-                    startActivity(handbookIntent);
+                    replaceFragment(new DiaryFragment());
                     break;
                 case R.id.setting:
                     break;

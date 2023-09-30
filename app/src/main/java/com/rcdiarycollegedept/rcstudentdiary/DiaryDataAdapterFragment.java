@@ -1,4 +1,5 @@
 package com.rcdiarycollegedept.rcstudentdiary;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -6,33 +7,30 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-
-import java.util.ArrayList;
 import java.util.List;
 
-public class DiaryDataAdapter extends RecyclerView.Adapter<DiaryDataAdapter.ItemViewHolder> {
+public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdapterFragment.ItemViewHolder> {
 
-    private List<DiaryDataModel> mList;
-    private List<String> list = new ArrayList<>();
+    private List<DiaryDataModelFragment> mList;
 
-    public DiaryDataAdapter(List<DiaryDataModel> mList){
-        this.mList  = mList;
+    public DiaryDataAdapterFragment(List<DiaryDataModelFragment> mList) {
+        this.mList = mList;
     }
+
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view  = LayoutInflater.from(parent.getContext()).inflate(R.layout.diary_main_btn , parent , false);
+        // Inflate the new layout fragment_diary_data_adapter.xml
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_diary_data_adapter, parent, false);
         return new ItemViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
-        DiaryDataModel model = mList.get(position);
+        DiaryDataModelFragment model = mList.get(position);
         holder.mTextView.setText(model.getItemText());
 
         boolean isExpandable = model.isExpandable();
@@ -53,25 +51,31 @@ public class DiaryDataAdapter extends RecyclerView.Adapter<DiaryDataAdapter.Item
         });
 
         // Initialize the nested RecyclerView with sub-buttons
-        DiaryNestedAdapter adapter = new DiaryNestedAdapter(model.getNestedList());
+        DiaryNestedAdapterFragment adapter = new DiaryNestedAdapterFragment(model.getFragmentList(), holder.itemView.getContext());
+
         holder.nestedRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
         holder.nestedRecyclerView.setHasFixedSize(true);
         holder.nestedRecyclerView.setAdapter(adapter);
     }
-
 
     @Override
     public int getItemCount() {
         return mList.size();
     }
 
-    public class ItemViewHolder extends RecyclerView.ViewHolder{
+    // Add this method to update the dataset with search results
+    public void updateDataset(List<DiaryDataModelFragment> updatedList) {
+        mList.clear();
+        mList.addAll(updatedList);
+        notifyDataSetChanged();
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder {
         private LinearLayout linearLayout;
         private RelativeLayout expandableLayout;
         private TextView mTextView;
         private ImageView mArrowImage;
         private RecyclerView nestedRecyclerView;
-
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);

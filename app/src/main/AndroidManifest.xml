@@ -27,18 +27,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".DiaryActivity"
-            android:label="Diary Activity">
-
-            <!-- Include any intent filters if needed -->
-        </activity>
-        <activity
-            android:name=".DiaryLayout1"
-            android:label="Diary Layout 1" />
-        <activity
-            android:name=".DiaryLayout2"
-            android:label="Diary Layout 2" />
 
         <meta-data
             android:name="preloaded_fonts"
