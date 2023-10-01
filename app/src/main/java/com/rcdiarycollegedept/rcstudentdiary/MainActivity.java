@@ -39,10 +39,9 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new CalendarFragment());
                     break;
                 case R.id.handbook:
-                    Intent handbookIntent = new Intent(this, DiaryActivity.class);
-                    startActivity(handbookIntent);
                     break;
                 case R.id.setting:
+                    replaceFragment(new SettingsFragment());
                     break;
 
             }
