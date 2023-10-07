@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new HomeFragment());
                     break;
                 case R.id.note:
+                    replaceFragment(new NoteFragment());
                     break;
                 case R.id.calendar:
                     replaceFragment(new CalendarFragment());
