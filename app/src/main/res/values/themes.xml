@@ -13,4 +13,9 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="TimePickerTheme">
+        <!-- Customize the colorAccent to change the theme color -->
+        <item name="colorAccent">#1e329d</item>
+    </style>
+
 </resources>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <!-- Center the TextView -->
+    <TextView
+        android:id="@+id/dialog_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/righteous"
+        android:text="Update Reminder"
+        android:textColor="@android:color/black"
+        android:textSize="18sp" />
+
+    <!-- Add Reminder Name EditText -->
+    <EditText
+        android:id="@+id/dialog_reminder_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_text"
+        android:layout_marginTop="16dp"
+        android:background="@android:drawable/editbox_background"
+        android:fontFamily="@font/poppins"
+        android:hint="Reminder Name" />
+
+    <!-- Add Reminder Time EditText with inputType="time" -->
+    <TimePicker
+        android:id="@+id/dialog_reminder_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_reminder_name"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins"
+        android:theme="@style/TimePickerTheme"/>
+
+    <!-- Use a horizontal LinearLayout for Confirm and Cancel buttons with space in between -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/dialog_reminder_time"
+        android:layout_marginTop="16dp">
+
+        <Button
+            android:id="@+id/dialog_save"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#1e329d"
+            android:fontFamily="@font/poppins"
+            android:text="Save" />
+
+        <!-- Add space between Confirm and Cancel buttons -->
+        <Space
+            android:layout_width="16dp"
+            android:layout_height="1dp" />
+
+        <Button
+            android:id="@+id/dialog_cancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#1e329d"
+            android:fontFamily="@font/poppins"
+            android:text="Cancel" />
+    </LinearLayout>
+</RelativeLayout>
