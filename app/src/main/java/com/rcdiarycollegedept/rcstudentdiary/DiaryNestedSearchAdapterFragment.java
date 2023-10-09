@@ -1,63 +1,102 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
-import android.os.Bundle;
-import androidx.fragment.app.Fragment;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
+import java.util.List;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link DiaryNestedSearchAdapterFragment#newInstance} factory method to
- * create an instance of this fragment.
- *
- */
-public class DiaryNestedSearchAdapterFragment extends Fragment {
+public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<DiaryNestedSearchAdapterFragment.NestedViewHolder> {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private List<DiaryDataModelFragment> searchResults;
+    private Context context;
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment DiaryNestedSearchAdapterFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static DiaryNestedSearchAdapterFragment newInstance(String param1, String param2) {
-        DiaryNestedSearchAdapterFragment fragment = new DiaryNestedSearchAdapterFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public DiaryNestedSearchAdapterFragment(List<DiaryDataModelFragment> searchResults, Context context) {
+        this.searchResults = searchResults;
+        this.context = context;
     }
 
-    public DiaryNestedSearchAdapterFragment() {
-        // Required empty public constructor
+    @NonNull
+    @Override
+    public NestedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Inflate the layout for search results (fragment_diary_nested_adapter.xml)
+        View view = LayoutInflater.from(context).inflate(R.layout.fragment_diary_nested_adapter, parent, false);
+        return new NestedViewHolder(view);
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onBindViewHolder(@NonNull NestedViewHolder holder, int position) {
+        DiaryDataModelFragment model = searchResults.get(position);
+
+        // Bind data for search result using the same layout
+        holder.mTv.setText(model.getItemText());
+
+        holder.mTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Handle click event for search result, e.g., navigate to a specific layout
+                int layoutValue = model.getLayout();
+                switch (layoutValue) {
+                    case 3:
+                        // Replace with DiaryLayout1Fragment
+                        Fragment diaryLayout1Fragment = DiaryLayout1Fragment.newInstance(
+                                model.getContent(),
+                                model.getAudio(),
+                                model.getPicture()
+                        );
+                        // Redirect to the specific layout when clicked
+                        replaceFragment(diaryLayout1Fragment);
+                        break;
+                    case 2:
+                        // Replace with DiaryLayout2Fragment
+                        Fragment diaryLayout2Fragment = DiaryLayout2Fragment.newInstance(
+                                model.getItemText()
+                        );
+                        // Redirect to the specific layout when clicked
+                        replaceFragment(diaryLayout2Fragment);
+                        break;
+                    // Add cases for other layout values as needed
+                    default:
+                        // Handle default case or error
+                        break;
+                }
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return searchResults.size();
+    }
+
+    public class NestedViewHolder extends RecyclerView.ViewHolder {
+        private TextView mTv;
+
+        public NestedViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mTv = itemView.findViewById(R.id.buttonn);
         }
     }
 
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_diary_nested_search_adapter, container, false);
+    private void replaceFragment(Fragment newFragment) {
+        FragmentManager fragmentManager = ((AppCompatActivity) context).getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout, newFragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
+    }
+
+    // Add this method to update the dataset with search results
+    public void updateDataset(List<DiaryDataModelFragment> updatedList) {
+        searchResults.clear();
+        searchResults.addAll(updatedList);
+        notifyDataSetChanged();
     }
 }

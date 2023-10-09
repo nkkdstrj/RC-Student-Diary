@@ -4,19 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:windowSoftInputMode="adjustPan"
     tools:context=".DiaryFragment">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:layout_marginBottom="2dp"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
             android:focusable="false"
             app:iconifiedByDefault="false"
             app:layout_constraintBottom_toTopOf="@+id/main_recyclerview"
@@ -28,16 +26,23 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/main_recyclerview"
-            android:layout_width="411dp"
-            android:layout_height="684dp"
-android:layout_marginTop="20dp"
-            android:layout_below="@+id/search"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/search"
-             />
+            app:layout_constraintTop_toBottomOf="@+id/search" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_results_recyclerview"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

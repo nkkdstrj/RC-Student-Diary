@@ -42,17 +42,29 @@ public class DiaryNestedAdapterFragment extends RecyclerView.Adapter<DiaryNested
                 switch (layoutValue) {
                     case 3:
                         // Replace with DiaryLayout1Fragment
+                        Fragment diaryLayout3Fragment = DiaryLayout3Fragment.newInstance(
+                                model.getContent()
+
+                        );
+                        // Redirect to the specific layout when clicked
+                        replaceFragment(diaryLayout3Fragment);
+                        break;
+                    case 1:
+                        // Replace with DiaryLayout1Fragment
                         Fragment diaryLayout1Fragment = DiaryLayout1Fragment.newInstance(
                                 model.getContent(),
                                 model.getAudio(),
                                 model.getPicture()
+
                         );
                         // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout1Fragment);
                         break;
                     case 2:
                         // Replace with DiaryLayout2Fragment
-                        Fragment diaryLayout2Fragment = new DiaryLayout2Fragment();
+                        Fragment diaryLayout2Fragment = DiaryLayout2Fragment.newInstance(
+                                model.getItemText()
+                        );
                         // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout2Fragment);
                         break;

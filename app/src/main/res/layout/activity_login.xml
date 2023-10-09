@@ -37,30 +37,12 @@
         android:text="College and TED Department Student Diary"
         android:textColor="#FFFFFF"
         android:textSize="16sp"
-        app:layout_constraintBottom_toTopOf="@+id/editTextStudentNumber"
+        app:layout_constraintBottom_toTopOf="@+id/emailLogin"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.0" />
-
-    <EditText
-        android:id="@+id/editTextStudentNumber"
-        android:layout_width="264dp"
-        android:layout_height="47dp"
-        android:layout_marginBottom="12dp"
-        android:background="@android:drawable/editbox_background"
-        android:drawableLeft="@drawable/baseline_person_24"
-        android:drawableTint="#1e329d"
-        android:ems="10"
-        android:fontFamily="@font/jost"
-        android:gravity="center_horizontal"
-        android:hint="Student Number"
-        android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/editTextPassword"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
-        app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/editTextPassword"
@@ -77,14 +59,14 @@
         android:inputType="textPassword"
         app:layout_constraintBottom_toTopOf="@+id/LoginButton"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintHorizontal_bias="0.517"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/LoginButton"
         android:layout_width="263dp"
         android:layout_height="38dp"
-        android:layout_marginBottom="144dp"
+        android:layout_marginBottom="120dp"
         android:backgroundTint="#0e0083"
         android:fontFamily="@font/jost"
         android:text="LOGIN"
@@ -93,6 +75,25 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
+        app:layout_constraintHorizontal_bias="0.513"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/emailLogin"
+        android:layout_width="264dp"
+        android:layout_height="47dp"
+        android:layout_marginBottom="20dp"
+        android:background="@android:drawable/editbox_background"
+        android:drawableLeft="@drawable/baseline_person_24"
+        android:drawableTint="#1e329d"
+        android:ems="10"
+        android:fontFamily="@font/jost"
+        android:gravity="center_horizontal"
+        android:hint="Student Number"
+        android:inputType="textEmailAddress"
+        app:layout_constraintBottom_toTopOf="@+id/editTextPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.517"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

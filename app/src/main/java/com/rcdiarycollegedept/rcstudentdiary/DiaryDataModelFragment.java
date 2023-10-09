@@ -2,6 +2,7 @@ package com.rcdiarycollegedept.rcstudentdiary;
 
 import androidx.fragment.app.Fragment;
 import java.util.List;
+import java.util.Map;
 
 public class DiaryDataModelFragment {
     private List<DiaryDataModelFragment> fragmentList; // Store a list of fragments
@@ -12,7 +13,7 @@ public class DiaryDataModelFragment {
     private String content;
     private int layout;
     private String picture;
-
+    private Map<String, Map<String, String>> tables;
     // Constructor for main buttons with sub-buttons
     public DiaryDataModelFragment(String itemText, List<DiaryDataModelFragment> fragmentList) {
         this.itemText = itemText;
@@ -28,6 +29,7 @@ public class DiaryDataModelFragment {
         this.layout = layout;
         this.picture = picture;
         this.isExpandable = false;
+
     }
 
     public void setExpandable(boolean expandable) {
@@ -61,4 +63,14 @@ public class DiaryDataModelFragment {
     public String getPicture() {
         return picture;
     }
-}
+
+    public Map<String, Map<String, String>> getTables() {
+        return tables;
+    }
+
+    // Setter for tables
+    public void setTables(Map<String, Map<String, String>> tables) {
+        this.tables = tables;
+    }
+    }
+

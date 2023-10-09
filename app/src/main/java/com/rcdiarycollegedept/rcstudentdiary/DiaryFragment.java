@@ -5,12 +5,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.appcompat.widget.SearchView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.SearchView; // Import androidx SearchView
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,11 +29,13 @@ public class DiaryFragment extends Fragment {
     private RecyclerView recyclerView;
     private List<DiaryDataModelFragment> mList;
     private DiaryDataAdapterFragment adapter;
+    private DiaryNestedSearchAdapterFragment searchResultsAdapter;
     private FragmentDiaryBinding binding;
     private DatabaseReference mDatabase;
 
-    // Separate list for matching sub-buttons
     private List<DiaryDataModelFragment> matchingSubButtons = new ArrayList<>();
+
+    private RecyclerView searchResultsRecyclerView; // Added to hold search results RecyclerView
 
     @Nullable
     @Override
@@ -48,6 +54,17 @@ public class DiaryFragment extends Fragment {
         // Fetch data from Firebase
         fetchDataFromFirebase();
 
+        // Initialize the adapter and set it to the RecyclerView
+        adapter = new DiaryDataAdapterFragment(mList);
+        recyclerView.setAdapter(adapter);
+
+        // Initialize search results RecyclerView
+        searchResultsRecyclerView = rootView.findViewById(R.id.search_results_recyclerview); // Use the correct ID
+        searchResultsRecyclerView.setHasFixedSize(true);
+        searchResultsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        searchResultsAdapter = new DiaryNestedSearchAdapterFragment(new ArrayList<>(), getContext());
+        searchResultsRecyclerView.setAdapter(searchResultsAdapter);
+
         // Implement search functionality
         SearchView searchView = rootView.findViewById(R.id.search);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -58,8 +75,16 @@ public class DiaryFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                // Handle search as the user types.
-                performSearch(newText);
+                if (newText.isEmpty()) {
+                    // If the search text is empty, show the main RecyclerView (fragment list)
+                    recyclerView.setVisibility(View.VISIBLE);
+                    searchResultsRecyclerView.setVisibility(View.GONE);
+                } else {
+                    // If there is text in the search, hide the main RecyclerView
+                    recyclerView.setVisibility(View.GONE);
+                    // Handle search as the user types.
+                    performSearch(newText);
+                }
                 return true;
             }
         });
@@ -92,9 +117,8 @@ public class DiaryFragment extends Fragment {
                     mList.add(new DiaryDataModelFragment(buttonName, subButtonList));
                 }
 
-                // Initialize the adapter and set it to the RecyclerView
-                adapter = new DiaryDataAdapterFragment(mList);
-                recyclerView.setAdapter(adapter);
+                // Notify the adapter that the dataset has changed
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -126,8 +150,15 @@ public class DiaryFragment extends Fragment {
                     }
                 }
 
-                // Update the adapter's dataset with search results using the new method
-                adapter.updateDataset(matchingSubButtons);
+                // Update the search results adapter's dataset with search results
+                searchResultsAdapter.updateDataset(matchingSubButtons);
+
+                // Show/hide the search results RecyclerView based on whether there are results
+                if (matchingSubButtons.isEmpty()) {
+                    searchResultsRecyclerView.setVisibility(View.GONE);
+                } else {
+                    searchResultsRecyclerView.setVisibility(View.VISIBLE);
+                }
             }
 
             @Override

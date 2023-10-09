@@ -1,6 +1,5 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
-import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -52,7 +51,6 @@ public class DiaryLayout1Fragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_diary_layout1, container, false);
 
-
         contentTextView = rootView.findViewById(R.id.textViewLyrics);
         playerPosition = rootView.findViewById(R.id.player_position);
         playerDuration = rootView.findViewById(R.id.player_duration);
@@ -74,20 +72,40 @@ public class DiaryLayout1Fragment extends Fragment {
             mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                 @Override
                 public void onPrepared(MediaPlayer mp) {
-                    // Audio is prepared, you can update the UI as needed
                     int duration = mediaPlayer.getDuration();
                     String sDuration = convertFormat(duration);
                     playerDuration.setText(sDuration);
                     seekbar.setMax(mediaPlayer.getDuration());
                     isPrepared = true;
+
+                    // Now that media is prepared, you can start playback
+                    togglePlayback();
                 }
             });
-            mediaPlayer.prepareAsync(); // Start preparing the audio immediately
+            mediaPlayer.prepareAsync();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        // Set click listeners for play and pause buttons
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    mediaPlayer.seekTo(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Called when the user starts interacting with the SeekBar.
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Called when the user stops interacting with the SeekBar.
+            }
+        });
+
         btplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,7 +120,17 @@ public class DiaryLayout1Fragment extends Fragment {
             }
         });
 
-        // Set seek bar change listener
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (mediaPlayer != null) {
+                    int currentPosition = mediaPlayer.getCurrentPosition();
+                    seekbar.setProgress(currentPosition);
+                    playerPosition.setText(convertFormat(currentPosition));
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        };
 
         return rootView;
     }
@@ -110,14 +138,12 @@ public class DiaryLayout1Fragment extends Fragment {
     private void togglePlayback() {
         if (isPrepared) {
             if (isPlaying) {
-                // Pause the audio
                 btpause.setVisibility(View.GONE);
                 btplay.setVisibility(View.VISIBLE);
                 mediaPlayer.pause();
                 handler.removeCallbacks(runnable);
                 isPlaying = false;
             } else {
-                // Start playing the audio
                 btplay.setVisibility(View.GONE);
                 btpause.setVisibility(View.VISIBLE);
                 mediaPlayer.start();
@@ -142,7 +168,6 @@ public class DiaryLayout1Fragment extends Fragment {
         }
         handler.removeCallbacks(runnable);
     }
-
 
     private String convertFormat(int duration) {
         return String.format("%02d:%02d",
