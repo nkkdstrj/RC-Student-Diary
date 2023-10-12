@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             // Check if the email contains "@" symbol, if not, add "@example.com" to it.
             if (!userEmail.contains("@")) {
-                userEmail += "@example.com";
+                userEmail += "@rc.edu";
             }
             signInUser(userEmail, userPassword);
         }

@@ -34,12 +34,13 @@ public class MainActivity extends AppCompatActivity {
                     replaceFragment(new HomeFragment());
                     break;
                 case R.id.note:
-                    replaceFragment(new NoteFragment());
+                    replaceFragment(new NotesFragment());
                     break;
                 case R.id.calendar:
                     replaceFragment(new CalendarFragment());
                     break;
                 case R.id.handbook:
+                    replaceFragment(new DiaryFragment());
                     break;
                 case R.id.setting:
                     replaceFragment(new SettingsFragment());

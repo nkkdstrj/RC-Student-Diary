@@ -51,7 +51,8 @@
             android:layout_weight="1"
             android:backgroundTint="#1e329d"
             android:fontFamily="@font/poppins"
-            android:text="Save" />
+            android:text="Save"
+            android:textColor="@color/white" />
 
         <!-- Add space between Confirm and Cancel buttons -->
         <Space
@@ -65,6 +66,7 @@
             android:layout_weight="1"
             android:backgroundTint="#1e329d"
             android:fontFamily="@font/poppins"
-            android:text="Cancel" />
+            android:text="Cancel"
+            android:textColor="@color/white" />
     </LinearLayout>
 </RelativeLayout>

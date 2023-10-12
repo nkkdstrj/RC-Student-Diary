@@ -17,6 +17,7 @@
         android:fontFamily="@font/poppins"
         android:gravity="center|left"
         android:text="Sign Out"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -45,6 +46,7 @@
         android:fontFamily="@font/poppins"
         android:gravity="center|left"
         android:text="Change Password"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toTopOf="@+id/sOut"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

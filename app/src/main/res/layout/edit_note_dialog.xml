@@ -79,7 +79,8 @@
             android:layout_weight="1"
             android:backgroundTint="#1e329d"
             android:fontFamily="@font/poppins"
-            android:text="Save" />
+            android:text="Save"
+            android:textColor="@color/white" />
 
         <Space
             android:layout_width="16dp"
@@ -92,7 +93,8 @@
             android:layout_weight="1"
             android:backgroundTint="#1e329d"
             android:fontFamily="@font/poppins"
-            android:text="Cancel" />
+            android:text="Cancel"
+            android:textColor="@color/white" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

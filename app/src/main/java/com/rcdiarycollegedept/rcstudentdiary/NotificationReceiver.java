@@ -1,5 +1,6 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
+import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,6 +12,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 
 public class NotificationReceiver extends BroadcastReceiver {
+    @SuppressLint("MissingPermission")
     @Override
     public void onReceive(Context context, Intent intent) {
         String eventName = intent.getStringExtra("eventName");

@@ -38,6 +38,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
             android:fontFamily="@font/montserrat_bold"
+            android:textColor="@color/black"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -49,6 +50,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
             android:fontFamily="@font/poppins"
+            android:textColor="@color/black"
             android:textSize="14sp" />
 
         <TextView
@@ -59,6 +61,7 @@
             android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
             android:fontFamily="@font/poppins"
+            android:textColor="@color/black"
             android:textSize="14sp" />
     </LinearLayout>
 
