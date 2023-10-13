@@ -41,15 +41,24 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
         holder.mTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Handle click event for search result, e.g., navigate to a specific layout
                 int layoutValue = model.getLayout();
                 switch (layoutValue) {
                     case 3:
+                        // Replace with DiaryLayout1Fragment
+                        Fragment diaryLayout3Fragment = DiaryLayout3Fragment.newInstance(
+                                model.getContent()
+
+                        );
+                        // Redirect to the specific layout when clicked
+                        replaceFragment(diaryLayout3Fragment);
+                        break;
+                    case 1:
                         // Replace with DiaryLayout1Fragment
                         Fragment diaryLayout1Fragment = DiaryLayout1Fragment.newInstance(
                                 model.getContent(),
                                 model.getAudio(),
                                 model.getPicture()
+
                         );
                         // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout1Fragment);
