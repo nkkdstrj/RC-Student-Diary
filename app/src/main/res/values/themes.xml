@@ -3,7 +3,7 @@
     <style name="Theme.RCStudentDiary" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">#0e0083</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
+        <item name="colorPrimaryVariant">#0e0083</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/teal_200</item>

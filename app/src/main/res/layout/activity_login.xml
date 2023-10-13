@@ -85,6 +85,7 @@
         android:layout_width="263dp"
         android:layout_height="38dp"
         android:layout_marginBottom="148dp"
+        android:background="@drawable/rounded_shadow_background"
         android:backgroundTint="#0e0083"
         android:fontFamily="@font/poppins"
         android:gravity="center"
