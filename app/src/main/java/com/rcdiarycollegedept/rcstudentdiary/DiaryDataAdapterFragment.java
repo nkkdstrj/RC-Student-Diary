@@ -4,8 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,7 +21,6 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
     @NonNull
     @Override
     public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the new layout fragment_diary_data_adapter.xml
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_diary_data_adapter, parent, false);
         return new ItemViewHolder(view);
     }
@@ -31,31 +28,7 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
         DiaryDataModelFragment model = mList.get(position);
-        holder.mTextView.setText(model.getItemText());
-
-        boolean isExpandable = model.isExpandable();
-        holder.expandableLayout.setVisibility(isExpandable ? View.VISIBLE : View.GONE);
-
-        if (isExpandable) {
-            holder.mArrowImage.setImageResource(R.drawable.arrow_up);
-        } else {
-            holder.mArrowImage.setImageResource(R.drawable.arrow_down);
-        }
-
-        holder.mTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                model.setExpandable(!model.isExpandable());
-                notifyItemChanged(position);
-            }
-        });
-
-        // Initialize the nested RecyclerView with sub-buttons
-        DiaryNestedAdapterFragment adapter = new DiaryNestedAdapterFragment(model.getFragmentList(), holder.itemView.getContext());
-
-        holder.nestedRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
-        holder.nestedRecyclerView.setHasFixedSize(true);
-        holder.nestedRecyclerView.setAdapter(adapter);
+        holder.bind(model);
     }
 
     @Override
@@ -71,20 +44,35 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
     }
 
     public class ItemViewHolder extends RecyclerView.ViewHolder {
-        private LinearLayout linearLayout;
-        private RelativeLayout expandableLayout;
         private TextView mTextView;
-        private ImageView mArrowImage;
+
         private RecyclerView nestedRecyclerView;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            linearLayout = itemView.findViewById(R.id.linear_layout);
-            expandableLayout = itemView.findViewById(R.id.expandable_layout);
             mTextView = itemView.findViewById(R.id.itemTv);
-            mArrowImage = itemView.findViewById(R.id.arro_imageview);
+
             nestedRecyclerView = itemView.findViewById(R.id.child_rv);
+        }
+
+        public void bind(DiaryDataModelFragment model) {
+            mTextView.setText(model.getItemText());
+            boolean isExpandable = model.isExpandable();
+            nestedRecyclerView.setVisibility(isExpandable ? View.VISIBLE : View.GONE);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    model.setExpandable(!model.isExpandable());
+                    notifyItemChanged(getAdapterPosition());
+                }
+            });
+
+            DiaryNestedAdapterFragment adapter = new DiaryNestedAdapterFragment(model.getFragmentList(), itemView.getContext());
+            nestedRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+            nestedRecyclerView.setHasFixedSize(true);
+            nestedRecyclerView.setAdapter(adapter);
         }
     }
 }

@@ -1,4 +1,3 @@
-
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/parentLayout"
@@ -9,16 +8,16 @@
     android:clickable="true"
     android:focusable="true">
 
-<Button
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:id="@+id/buttonn"
-android:background="@android:color/white"
-android:layout_gravity="center"
-android:clickable="true"
-android:focusable="true"
-android:textStyle="bold"
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/buttonn"
+        android:background="@android:color/white"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:focusable="true"
+        android:textStyle="bold"
 
-    />
+        />
 
-    </LinearLayout>
+</LinearLayout>

@@ -9,14 +9,12 @@ import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
@@ -35,7 +33,9 @@ public class DiaryFragment extends Fragment {
 
     private List<DiaryDataModelFragment> matchingSubButtons = new ArrayList<>();
 
-    private RecyclerView searchResultsRecyclerView; // Added to hold search results RecyclerView
+    private RecyclerView searchResultsRecyclerView;
+
+    private ValueEventListener dataListener; // Added ValueEventListener for Firebase data changes
 
     @Nullable
     @Override
@@ -48,41 +48,57 @@ public class DiaryFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         mList = new ArrayList<>();
 
-        // Initialize Firebase Database reference
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // Fetch data from Firebase
-        fetchDataFromFirebase();
+        // Add network connectivity listener
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    if (dataListener == null) {
+                        // If the listener is null, add a listener to automatically refresh data when online
+                        addDataListener();
+                    }
+                } else {
+                    if (dataListener != null) {
+                        // If the listener is not null and the network goes offline, remove the listener
+                        mDatabase.child("diarycontent_btn").removeEventListener(dataListener);
+                        dataListener = null;
+                    }
+                }
+            }
 
-        // Initialize the adapter and set it to the RecyclerView
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("FirebaseError", "Error checking network connectivity: " + error.getMessage());
+            }
+        });
+
         adapter = new DiaryDataAdapterFragment(mList);
         recyclerView.setAdapter(adapter);
 
-        // Initialize search results RecyclerView
-        searchResultsRecyclerView = rootView.findViewById(R.id.search_results_recyclerview); // Use the correct ID
+        searchResultsRecyclerView = rootView.findViewById(R.id.search_results_recyclerview);
         searchResultsRecyclerView.setHasFixedSize(true);
         searchResultsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         searchResultsAdapter = new DiaryNestedSearchAdapterFragment(new ArrayList<>(), getContext());
         searchResultsRecyclerView.setAdapter(searchResultsAdapter);
 
-        // Implement search functionality
         SearchView searchView = rootView.findViewById(R.id.search);
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                return false; // Handle search when the user submits the query (optional).
+                return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (newText.isEmpty()) {
-                    // If the search text is empty, show the main RecyclerView (fragment list)
                     recyclerView.setVisibility(View.VISIBLE);
                     searchResultsRecyclerView.setVisibility(View.GONE);
                 } else {
-                    // If there is text in the search, hide the main RecyclerView
                     recyclerView.setVisibility(View.GONE);
-                    // Handle search as the user types.
                     performSearch(newText);
                 }
                 return true;
@@ -92,32 +108,29 @@ public class DiaryFragment extends Fragment {
         return rootView;
     }
 
-    private void fetchDataFromFirebase() {
-        DatabaseReference diaryContentRef = mDatabase.child("diarycontent_btn");
-
-        diaryContentRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void addDataListener() {
+        dataListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mList.clear();
-
                 for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
                     String buttonName = buttonSnapshot.child("buttonname").getValue(String.class);
-
                     List<DiaryDataModelFragment> subButtonList = new ArrayList<>();
                     for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
                         String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
                         String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
                         String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
-                        int subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
+                        int subButtonLayout;
+                        try {
+                            subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
+                        } catch (DatabaseException e) {
+                            subButtonLayout = 0;
+                        }
                         String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
-
                         subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
                     }
-
                     mList.add(new DiaryDataModelFragment(buttonName, subButtonList));
                 }
-
-                // Notify the adapter that the dataset has changed
                 adapter.notifyDataSetChanged();
             }
 
@@ -125,7 +138,9 @@ public class DiaryFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
                 Log.e("FirebaseError", "Error fetching data from Firebase: " + databaseError.getMessage());
             }
-        });
+        };
+
+        mDatabase.child("diarycontent_btn").addValueEventListener(dataListener);
     }
 
     private void performSearch(String query) {
@@ -134,12 +149,10 @@ public class DiaryFragment extends Fragment {
         diaryContentRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                matchingSubButtons.clear(); // Clear the previous search results
-
+                matchingSubButtons.clear();
                 for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
                     for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
                         String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
-
                         if (subButtonContent != null && subButtonContent.toLowerCase().contains(query.toLowerCase())) {
                             String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
                             String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
@@ -149,11 +162,7 @@ public class DiaryFragment extends Fragment {
                         }
                     }
                 }
-
-                // Update the search results adapter's dataset with search results
                 searchResultsAdapter.updateDataset(matchingSubButtons);
-
-                // Show/hide the search results RecyclerView based on whether there are results
                 if (matchingSubButtons.isEmpty()) {
                     searchResultsRecyclerView.setVisibility(View.GONE);
                 } else {
