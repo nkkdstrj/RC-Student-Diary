@@ -1,5 +1,9 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
+import android.annotation.SuppressLint;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +24,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.Context;
+
 
 public class HomeFragment extends Fragment {
 
@@ -29,6 +40,8 @@ public class HomeFragment extends Fragment {
     private List<PublicReminder> publicReminderList = new ArrayList<>();
     private List<Integer> usedTriviaIndices = new ArrayList<>();
     private int totalTriviaItems = 0;
+
+    private boolean newReminderFetched = false; // Flag to track new reminders
 
     @Nullable
     @Override
@@ -48,13 +61,11 @@ public class HomeFragment extends Fragment {
         dateTextView = rootView.findViewById(R.id.dateTextView);
         triviaText = rootView.findViewById(R.id.triviaText);
 
-        // Progress bars for each TextView
         nameProgressBar = rootView.findViewById(R.id.nameProgressBar);
         dayProgressBar = rootView.findViewById(R.id.dayProgressBar);
         dateProgressBar = rootView.findViewById(R.id.dateProgressBar);
         triviaProgressBar = rootView.findViewById(R.id.triviaProgressBar2);
 
-        // Set the initial visibility of progress bars to "GONE"
         nameProgressBar.setVisibility(View.GONE);
         dayProgressBar.setVisibility(View.GONE);
         dateProgressBar.setVisibility(View.GONE);
@@ -62,7 +73,6 @@ public class HomeFragment extends Fragment {
 
         publicReminderRecyclerView = rootView.findViewById(R.id.publicReminder);
         publicReminderRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        // Pass the context and the publicReminderList to the adapter
         publicReminderAdapter = new PublicReminderAdapter(requireContext(), publicReminderList);
         publicReminderRecyclerView.setAdapter(publicReminderAdapter);
     }
@@ -82,7 +92,6 @@ public class HomeFragment extends Fragment {
                 .child(userStudentNumber)
                 .child("FullName");
 
-        // Show the progress bar for the nameTextView and hide the TextView
         nameProgressBar.setVisibility(View.VISIBLE);
         nameTextView.setVisibility(View.GONE);
 
@@ -91,15 +100,15 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String fullName = (dataSnapshot.exists()) ? dataSnapshot.getValue(String.class) : "Full name not found";
                 nameTextView.setText(fullName);
-                nameProgressBar.setVisibility(View.GONE); // Hide the progress bar
-                nameTextView.setVisibility(View.VISIBLE); // Show the TextView
+                nameProgressBar.setVisibility(View.GONE);
+                nameTextView.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 nameTextView.setText("Error fetching data");
-                nameProgressBar.setVisibility(View.GONE); // Hide the progress bar
-                nameTextView.setVisibility(View.VISIBLE); // Show the TextView
+                nameProgressBar.setVisibility(View.GONE);
+                nameTextView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -107,15 +116,14 @@ public class HomeFragment extends Fragment {
     private void fetchPublicRemindersFromFirebase() {
         DatabaseReference publicRemindersRef = FirebaseDatabase.getInstance().getReference().child("PublicReminders");
 
-        // Show the progress bar for the dayTextView and hide the TextView
         dayProgressBar.setVisibility(View.VISIBLE);
         dayTextView.setVisibility(View.GONE);
 
         publicRemindersRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                dayProgressBar.setVisibility(View.GONE); // Hide the progress bar
-                dayTextView.setVisibility(View.VISIBLE); // Show the TextView
+                dayProgressBar.setVisibility(View.GONE);
+                dayTextView.setVisibility(View.VISIBLE);
 
                 publicReminderList.clear();
                 for (DataSnapshot reminderSnapshot : dataSnapshot.getChildren()) {
@@ -123,7 +131,6 @@ public class HomeFragment extends Fragment {
                         PublicReminder publicReminder = eventSnapshot.getValue(PublicReminder.class);
 
                         if (publicReminder != null) {
-                            // Parse the date from the key into a Date object
                             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
                             try {
                                 Date date = dateFormat.parse(eventSnapshot.getKey());
@@ -136,13 +143,21 @@ public class HomeFragment extends Fragment {
                     }
                 }
                 publicReminderAdapter.notifyDataSetChanged();
+
+                // Check for new reminders and send a notification
+                // Check for new reminders and send a notification
+                if (newReminderFetched) {
+                    // Replace "A new reminder has been fetched." with the event name
+                    String eventName = publicReminderList.get(publicReminderList.size() - 1).getEventName();
+                    sendNotification(eventName);
+                    newReminderFetched = false; // Reset the flag
+                }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                // Handle errors
-                dayProgressBar.setVisibility(View.GONE); // Hide the progress bar
-                dayTextView.setVisibility(View.VISIBLE); // Show the TextView
+                dayProgressBar.setVisibility(View.GONE);
+                dayTextView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -184,7 +199,6 @@ public class HomeFragment extends Fragment {
             String triviaKey = "T" + (randomIndex + 1);
             DatabaseReference randomTriviaReference = triviaReference.child(triviaKey);
 
-            // Show the progress bar for the triviaText and hide the TextView
             triviaProgressBar.setVisibility(View.VISIBLE);
             triviaText.setVisibility(View.GONE);
 
@@ -193,21 +207,65 @@ public class HomeFragment extends Fragment {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     String triviaContent = (dataSnapshot.exists()) ? dataSnapshot.child("titleContent").getValue(String.class) : "Error fetching trivia";
                     triviaText.setText(triviaContent);
-                    triviaProgressBar.setVisibility(View.GONE); // Hide the progress bar
-                    triviaText.setVisibility(View.VISIBLE); // Show the TextView
+                    triviaProgressBar.setVisibility(View.GONE);
+                    triviaText.setVisibility(View.VISIBLE);
+
+                    // Set the newReminderFetched flag to true when a new reminder is fetched
+                    newReminderFetched = true;
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
                     triviaText.setText("Error fetching trivia");
-                    triviaProgressBar.setVisibility(View.GONE); // Hide the progress bar
-                    triviaText.setVisibility(View.VISIBLE); // Show the TextView
+                    triviaProgressBar.setVisibility(View.GONE);
+                    triviaText.setVisibility(View.VISIBLE);
                 }
             });
         } else {
             triviaText.setText("No trivia available");
-            triviaProgressBar.setVisibility(View.GONE); // Hide the progress bar
-            triviaText.setVisibility(View.VISIBLE); // Show the TextView
+            triviaProgressBar.setVisibility(View.GONE);
+            triviaText.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private void sendNotification(String eventName) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("default", "Default Channel", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager notificationManager = requireActivity().getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(requireContext(), "default")
+                .setSmallIcon(R.drawable.baseline_notifications_24)
+                .setContentTitle("Announcement")
+                .setContentText(eventName)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        Notification notification = builder.build();
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(requireContext());
+        notificationManager.notify(1, notification);
+    }
+    private void scheduleNotificationAlarm(String eventName) {
+        // Create an Intent that will be triggered by the alarm
+        Intent notificationIntent = new Intent(requireContext(), NotificationReceiver.class);
+        notificationIntent.putExtra("event_name", eventName);
+
+        // Create a PendingIntent for the Intent
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Get the AlarmManager
+        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
+
+        // Calculate the time when you want to trigger the notification (e.g., after 5 seconds)
+        long triggerTime = System.currentTimeMillis() + 3000; // 5000 milliseconds (5 seconds)
+
+        // Schedule the alarm
+        if (alarmManager != null) {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
         }
     }
 }
