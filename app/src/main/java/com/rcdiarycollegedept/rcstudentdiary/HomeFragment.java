@@ -24,11 +24,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Intent;
-import android.content.Context;
-
 
 public class HomeFragment extends Fragment {
 
@@ -145,12 +140,10 @@ public class HomeFragment extends Fragment {
                 publicReminderAdapter.notifyDataSetChanged();
 
                 // Check for new reminders and send a notification
-                // Check for new reminders and send a notification
                 if (newReminderFetched) {
-                    // Replace "A new reminder has been fetched." with the event name
                     String eventName = publicReminderList.get(publicReminderList.size() - 1).getEventName();
                     sendNotification(eventName);
-                    newReminderFetched = false; // Reset the flag
+                    newReminderFetched = true; // Reset the flag
                 }
             }
 
@@ -248,24 +241,5 @@ public class HomeFragment extends Fragment {
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(requireContext());
         notificationManager.notify(1, notification);
-    }
-    private void scheduleNotificationAlarm(String eventName) {
-        // Create an Intent that will be triggered by the alarm
-        Intent notificationIntent = new Intent(requireContext(), NotificationReceiver.class);
-        notificationIntent.putExtra("event_name", eventName);
-
-        // Create a PendingIntent for the Intent
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(requireContext(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        // Get the AlarmManager
-        AlarmManager alarmManager = (AlarmManager) requireContext().getSystemService(Context.ALARM_SERVICE);
-
-        // Calculate the time when you want to trigger the notification (e.g., after 5 seconds)
-        long triggerTime = System.currentTimeMillis() + 3000; // 5000 milliseconds (5 seconds)
-
-        // Schedule the alarm
-        if (alarmManager != null) {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, triggerTime, pendingIntent);
-        }
     }
 }
