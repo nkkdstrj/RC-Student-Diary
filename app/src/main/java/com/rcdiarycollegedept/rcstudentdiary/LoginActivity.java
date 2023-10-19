@@ -31,22 +31,19 @@ public class LoginActivity extends AppCompatActivity {
         // Check if the user is already authenticated
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // If the user is already logged in, navigate to MainActivity
             startMainActivity();
         }
 
-        // Set click listener for the login button
         loginButton.setOnClickListener(view -> loginUser());
     }
 
     private void loginUser() {
-        String userEmail = emailEditText.getText().toString();
-        String userPassword = passwordEditText.getText().toString();
+        String userEmail = emailEditText.getText().toString().trim();
+        String userPassword = passwordEditText.getText().toString().trim();
 
         if (TextUtils.isEmpty(userEmail) || TextUtils.isEmpty(userPassword)) {
             showToast("Please fill in all the details.");
         } else {
-            // Check if the email contains "@" symbol, if not, add "@example.com" to it.
             if (!userEmail.contains("@")) {
                 userEmail += "@rc.edu";
             }
@@ -67,11 +64,12 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void showToast(String message) {
-        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void startMainActivity() {
-        startActivity(new Intent(LoginActivity.this, MainActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK));
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 }

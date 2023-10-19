@@ -85,6 +85,7 @@ public class NotesFragment extends Fragment {
         binding.noteRecyclerView.setAdapter(notesAdapter);
     }
 
+
     private void showAddNoteDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         AddNoteDialogBinding dialogBinding = AddNoteDialogBinding.inflate(getLayoutInflater());
@@ -196,18 +197,66 @@ public class NotesFragment extends Fragment {
                     Note note = noteSnapshot.getValue(Note.class);
                     if (note != null) {
                         note.setNoteId(noteSnapshot.getKey());
-                        noteList.add(note);
+                        // Add the new note to the beginning of the list
+                        noteList.add(0, note);
                     }
                 }
                 notesAdapter.notifyDataSetChanged();
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
+                // Handle the error
             }
         });
     }
 
     private void handleEmptyFields() {
         Toast.makeText(requireContext(), "Please fill in both title and content", Toast.LENGTH_SHORT).show();
+    }
+    private void checkAndAddWelcomeNote() {
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    addWelcomeNoteToFirebase();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Handle the error
+                Toast.makeText(requireContext(), "Failed to check for notes.", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void addWelcomeNoteToFirebase() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            DatabaseReference userNotesRef = FirebaseDatabase.getInstance().getReference("Notes")
+                    .child(userId);
+            String noteId = userNotesRef.push().getKey();
+
+            Map<String, Object> welcomeNoteData = new HashMap<>();
+            welcomeNoteData.put("noteTitle", "Welcome to RCNotes");
+            welcomeNoteData.put("noteContent", "We're thrilled to have you on board. Notes is here to help you organize your thoughts, ideas, and important information in a simple and convenient way.\n" +
+                    "\n" +
+                    "Getting started is easy:\n" +
+                    "\n" +
+                    "1. Create a new note by tapping the \"+\" button.\n"+
+                    "2. Edit the note by tapping the note.\n"+
+                    "3. Delete notes by pressing \"x\" button.\n"+
+                    "\nFeel free to explore all the features and options available in our app. We're here to make your RCian experience as smooth and efficient as possible.");
+
+            userNotesRef.child(noteId).setValue(welcomeNoteData);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        checkAndAddWelcomeNote();
     }
 }

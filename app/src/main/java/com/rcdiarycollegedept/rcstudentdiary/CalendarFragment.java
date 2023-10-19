@@ -1,6 +1,5 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
-import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.NotificationChannel;
@@ -10,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,12 +19,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -32,12 +30,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.text.SimpleDateFormat;
 
 public class CalendarFragment extends Fragment implements ReminderAdapter.OnReminderDeleteListener, ReminderAdapter.OnReminderEditListener {
 
@@ -53,18 +50,16 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
         initializeViews(view);
-
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+
         if (currentUser != null) {
-            databaseReference = FirebaseDatabase.getInstance().getReference("Calendar")
-                    .child(currentUser.getUid());
+            databaseReference = FirebaseDatabase.getInstance().getReference("Calendar").child(currentUser.getUid());
         }
 
         setupCalendarView();
         createNotificationChannel();
         fetchAllReminders();
-
         return view;
     }
 
@@ -106,7 +101,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View dialogView = getLayoutInflater().inflate(R.layout.reminders_layout, null);
         builder.setView(dialogView);
-
         AlertDialog dialog = builder.create();
 
         EditText reminderName = dialogView.findViewById(R.id.dialog_reminder_name);
@@ -134,7 +128,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
                 Reminder newReminder = new Reminder(dateReference.getKey(), selectedDate, eventName, eventTime);
                 reminderAdapter.addReminder(newReminder);
                 reminderAdapter.notifyDataSetChanged();
-
                 Toast.makeText(getContext(), "Reminder Saved.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "Event name is empty.", Toast.LENGTH_SHORT).show();
@@ -144,7 +137,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
         });
 
         cancelButton.setOnClickListener(v -> dialog.dismiss());
-
         dialog.show();
     }
 
@@ -160,13 +152,10 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     reminderAdapter.clear();
-
                     for (DataSnapshot dateSnapshot : dataSnapshot.getChildren()) {
                         String date = dateSnapshot.getKey();
-
                         for (DataSnapshot reminderSnapshot : dateSnapshot.getChildren()) {
                             Reminder reminder = reminderSnapshot.getValue(Reminder.class);
-
                             if (reminder != null) {
                                 reminder.setId(reminderSnapshot.getKey());
                                 reminder.setDate(date);
@@ -174,7 +163,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
                             }
                         }
                     }
-
                     reminderAdapter.notifyDataSetChanged();
                 }
 
@@ -189,7 +177,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
     private void scheduleNotification(String eventName, int hour, int minute) {
         Intent notificationIntent = new Intent(getContext(), NotificationReceiver.class);
         notificationIntent.putExtra("eventName", eventName);
-
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 getContext(),
                 0,
@@ -210,7 +197,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
         );
     }
 
-
     @Override
     public void onDeleteReminder(Reminder reminder) {
         if (databaseReference != null) {
@@ -225,7 +211,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View dialogView = getLayoutInflater().inflate(R.layout.edit_reminder_dialog, null);
         builder.setView(dialogView);
-
         AlertDialog dialog = builder.create();
 
         EditText editReminderName = dialogView.findViewById(R.id.dialog_reminder_name);
@@ -258,7 +243,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
                 reminder.setEventName(newEventName);
                 reminder.setEventTime(newEventTime);
                 reminderAdapter.notifyDataSetChanged();
-
                 Toast.makeText(getContext(), "Reminder Updated.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(getContext(), "Event name is empty.", Toast.LENGTH_SHORT).show();
@@ -268,7 +252,6 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
         });
 
         cancelButton.setOnClickListener(v -> dialog.dismiss());
-
         dialog.show();
     }
 }
