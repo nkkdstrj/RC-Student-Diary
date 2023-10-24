@@ -3,9 +3,10 @@
     android:id="@+id/nestedsearch"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="70dp"
+    android:minHeight="60dp"
     android:layout_margin="8dp"
     android:clickable="true"
+
     android:focusable="true">
 
     <Button
@@ -13,7 +14,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/searchlist"
         android:background="@android:color/white"
-
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
         android:clickable="true"
         android:focusable="true"
         android:textStyle="bold"

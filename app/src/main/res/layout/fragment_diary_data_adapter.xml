@@ -6,6 +6,7 @@
     android:layout_margin="10dp"
     app:cardCornerRadius="8dp"
     android:minHeight="70dp"
+
     app:cardElevation="6dp">
 
     <LinearLayout
@@ -25,11 +26,12 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:text="CodingSTUFF"
-                android:textColor="@color/purple_700"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 android:paddingStart="30dp"
                 android:paddingEnd="30dp"
+                android:fontFamily="@font/poppins_bold"
+                style="@style/MyCustomTextViewStyle"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"

@@ -7,6 +7,7 @@ import java.util.Map;
 public class DiaryDataModelFragment {
     private List<DiaryDataModelFragment> fragmentList; // Store a list of fragments
     private String itemText;
+    private String pdfFilePath;
     private boolean isExpandable;
     private Fragment fragment; // Change the type to Fragment
     private String audio;
@@ -19,6 +20,8 @@ public class DiaryDataModelFragment {
         this.itemText = itemText;
         this.fragmentList = fragmentList;
         this.isExpandable = false;
+
+
     }
 
     // Constructor for sub-buttons
@@ -67,10 +70,15 @@ public class DiaryDataModelFragment {
     public Map<String, Map<String, String>> getTables() {
         return tables;
     }
-
+    public String getPdfFilePath() {
+        return pdfFilePath;
+    }public void setPdfFilePath(String pdfFilePath) {
+        this.pdfFilePath = pdfFilePath;
+    }
     // Setter for tables
     public void setTables(Map<String, Map<String, String>> tables) {
         this.tables = tables;
     }
     }
+
 

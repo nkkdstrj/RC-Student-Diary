@@ -5,22 +5,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import androidx.appcompat.widget.SearchView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SearchView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rcdiarycollegedept.rcstudentdiary.databinding.FragmentDiaryBinding;
+
 import java.util.ArrayList;
 import java.util.List;
-import com.rcdiarycollegedept.rcstudentdiary.databinding.FragmentDiaryBinding;
 
 public class DiaryFragment extends Fragment {
 
@@ -35,7 +34,7 @@ public class DiaryFragment extends Fragment {
 
     private RecyclerView searchResultsRecyclerView;
 
-    private ValueEventListener dataListener; // Added ValueEventListener for Firebase data changes
+    private ValueEventListener dataListener;
 
     @Nullable
     @Override
@@ -50,35 +49,12 @@ public class DiaryFragment extends Fragment {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-        // Add network connectivity listener
-        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
-        connectedRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                boolean connected = snapshot.getValue(Boolean.class);
-                if (connected) {
-                    if (dataListener == null) {
-                        // If the listener is null, add a listener to automatically refresh data when online
-                        addDataListener();
-                    }
-                } else {
-                    if (dataListener != null) {
-                        // If the listener is not null and the network goes offline, remove the listener
-                        mDatabase.child("diarycontent_btn").removeEventListener(dataListener);
-                        dataListener = null;
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.e("FirebaseError", "Error checking network connectivity: " + error.getMessage());
-            }
-        });
-
-        adapter = new DiaryDataAdapterFragment(mList);
+        adapter = new DiaryDataAdapterFragment(mList, getParentFragmentManager()); // Use getParentFragmentManager()
         recyclerView.setAdapter(adapter);
 
+        recyclerView.setAdapter(adapter);
+
+        // Initialize the search functionality
         searchResultsRecyclerView = rootView.findViewById(R.id.search_results_recyclerview);
         searchResultsRecyclerView.setHasFixedSize(true);
         searchResultsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -105,7 +81,78 @@ public class DiaryFragment extends Fragment {
             }
         });
 
+        DatabaseReference connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected");
+        connectedRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                boolean connected = snapshot.getValue(Boolean.class);
+                if (connected) {
+                    if (dataListener == null) {
+                        addDataListener();
+                    }
+                } else {
+                    if (dataListener != null) {
+                        mDatabase.child("diarycontent_btn").removeEventListener(dataListener);
+                        dataListener = null;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("FirebaseError", "Error checking network connectivity: " + error.getMessage());
+            }
+        });
+
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadDiaryData();
+    }
+
+    private void loadDiaryData() {
+        mDatabase.child("diarycontent_btn").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mList.clear();
+                for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
+                    String buttonName = buttonSnapshot.child("buttonname").getValue(String.class);
+                    List<DiaryDataModelFragment> subButtonList = new ArrayList<>();
+                    for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
+                        String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
+                        String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
+                        String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
+                        String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
+
+                        // Initialize subButtonLayout with a default value (e.g., -1)
+                        int subButtonLayout = -1;
+
+                        // Check if the layout data is available and a valid integer
+                        if (subButtonSnapshot.hasChild("layout")) {
+                            try {
+                                subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
+                            } catch (Exception e) {
+                                // Handle the exception (e.g., invalid data format)
+                                subButtonLayout = -1; // Assign a default value or handle the error appropriately
+                            }
+                        }
+
+                        subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
+                    }
+                    mList.add(new DiaryDataModelFragment(buttonName, subButtonList));
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("FirebaseError", "Error fetching data from Firebase: " + databaseError.getMessage());
+            }
+        });
     }
 
     private void addDataListener() {
@@ -120,19 +167,28 @@ public class DiaryFragment extends Fragment {
                         String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
                         String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
                         String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
-                        int subButtonLayout;
-                        try {
-                            subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
-                        } catch (DatabaseException e) {
-                            subButtonLayout = 0;
-                        }
                         String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
+
+                        // Initialize subButtonLayout with a default value (e.g., -1)
+                        int subButtonLayout = -1;
+
+                        // Check if the layout data is available and a valid integer
+                        if (subButtonSnapshot.hasChild("layout")) {
+                            try {
+                                subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
+                            } catch (Exception e) {
+                                // Handle the exception (e.g., invalid data format)
+                                subButtonLayout = -1; // Assign a default value or handle the error appropriately
+                            }
+                        }
+
                         subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
                     }
                     mList.add(new DiaryDataModelFragment(buttonName, subButtonList));
                 }
                 adapter.notifyDataSetChanged();
             }
+
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -152,10 +208,10 @@ public class DiaryFragment extends Fragment {
                 matchingSubButtons.clear();
                 for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
                     for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
-                        String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
-                        if (subButtonContent != null && subButtonContent.toLowerCase().contains(query.toLowerCase())) {
+                        String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
+                        if (subButtonAudio != null && subButtonAudio.toLowerCase().contains(query.toLowerCase())) {
                             String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
-                            String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
+                            String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
                             int subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
                             String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
                             matchingSubButtons.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
@@ -176,4 +232,6 @@ public class DiaryFragment extends Fragment {
             }
         });
     }
+
+
 }

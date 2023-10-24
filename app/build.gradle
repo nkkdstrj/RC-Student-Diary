@@ -33,9 +33,19 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildFeatures{
+    viewBinding = true}
+    packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 dependencies {
+
+    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+
+
+    implementation group: 'com.itextpdf', name: 'itextpdf', version: '5.5.13.2'
 
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
