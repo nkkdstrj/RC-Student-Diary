@@ -15,4 +15,3 @@ dependencyResolutionManagement {
 }
 rootProject.name = "RC Student Diary"
 include ':app'
-include ':admin_app'
