@@ -8,9 +8,11 @@
 
     <Button
         android:id="@+id/sOut"
-        android:layout_width="341dp"
+        android:layout_width="match_parent"
         android:layout_height="47dp"
         android:layout_marginBottom="536dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:backgroundTint="#1e329d"
         android:drawableRight="@drawable/baseline_arrow_right_24"
         android:drawableTint="@color/white"
@@ -37,9 +39,11 @@
 
     <Button
         android:id="@+id/changePass"
-        android:layout_width="341dp"
+        android:layout_width="match_parent"
         android:layout_height="47dp"
         android:layout_marginBottom="12dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
         android:backgroundTint="#1e329d"
         android:drawableRight="@drawable/baseline_arrow_right_24"
         android:drawableTint="@color/white"

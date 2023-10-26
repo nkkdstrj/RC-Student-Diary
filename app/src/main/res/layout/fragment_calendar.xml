@@ -32,29 +32,34 @@
         app:layout_constraintTop_toBottomOf="@+id/textView3"
         android:theme="@style/TimePickerTheme"/>
 
-    <!-- Customized Floating Action Button with Add Symbol -->
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="16dp"
-        android:backgroundTint="#1e329d"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        android:clickable="true"
         android:src="@drawable/baseline_notification_add_24"
+        app:backgroundTint="#1e329d"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerView"
-        app:tint="#ffffff" />
+        app:tint = "#ffffff"/>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
-        android:layout_width="395dp"
-        android:layout_height="315dp"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_height="0dp"
         android:background="@drawable/rounded_shadow_background"
+        android:backgroundTint="#dddddd"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView7" />
+        app:layout_constraintTop_toBottomOf="@+id/textView7"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:id="@+id/textView7"

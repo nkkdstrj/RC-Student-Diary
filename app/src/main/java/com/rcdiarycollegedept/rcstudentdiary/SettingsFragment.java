@@ -9,7 +9,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,44 +28,50 @@ public class SettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        initializeViews(view);
-        setClickListeners();
+        signOutButton = view.findViewById(R.id.sOut);
+        changePassButton = view.findViewById(R.id.changePass);
+
+        signOutButton.setOnClickListener(v -> showSignOutDialog());
+        changePassButton.setOnClickListener(v -> showPasswordChangeDialog());
 
         return view;
     }
 
-    private void initializeViews(View view) {
-        signOutButton = view.findViewById(R.id.sOut);
-        changePassButton = view.findViewById(R.id.changePass);
-    }
-
-    private void setClickListeners() {
-        signOutButton.setOnClickListener(v -> showSignOutDialog());
-        changePassButton.setOnClickListener(v -> showPasswordChangeDialog());
-    }
-
     private void showSignOutDialog() {
-        AlertDialog.Builder builder = createDialogBuilder(R.layout.dialog_layout);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_layout, null);
+        builder.setView(dialogView);
+
         AlertDialog dialog = builder.create();
 
-        setDialogButtons(dialog, () -> {
+        Button confirmButton = dialogView.findViewById(R.id.dialog_save);
+        Button cancelButton = dialogView.findViewById(R.id.dialog_cancel);
+
+        confirmButton.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
             navigateToLoginActivity();
             dialog.dismiss();
-        }, dialog::dismiss);
+        });
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }
 
     private void showPasswordChangeDialog() {
-        AlertDialog.Builder builder = createDialogBuilder(R.layout.ch_pass_diag_layout);
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.ch_pass_diag_layout, null);
+        builder.setView(dialogView);
+
         AlertDialog dialog = builder.create();
 
-        EditText currentPasswordEditText = dialog.findViewById(R.id.dialog_current_password);
-        EditText newPasswordEditText = dialog.findViewById(R.id.dialog_new_password);
-        EditText confirmPasswordEditText = dialog.findViewById(R.id.dialog_confirm_password);
+        EditText currentPasswordEditText = dialogView.findViewById(R.id.dialog_current_password);
+        EditText newPasswordEditText = dialogView.findViewById(R.id.dialog_new_password);
+        EditText confirmPasswordEditText = dialogView.findViewById(R.id.dialog_confirm_password);
+        Button confirmButton = dialogView.findViewById(R.id.dialog_save);
+        Button cancelButton = dialogView.findViewById(R.id.dialog_cancel);
 
-        setDialogButtons(dialog, () -> {
+        confirmButton.setOnClickListener(v -> {
             String currentPassword = currentPasswordEditText.getText().toString();
             String newPassword = newPasswordEditText.getText().toString();
             String confirmPassword = confirmPasswordEditText.getText().toString();
@@ -88,7 +97,9 @@ public class SettingsFragment extends Fragment {
             } else {
                 showToast("New password and confirm password do not match");
             }
-        }, dialog::dismiss);
+        });
+
+        cancelButton.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
     }
@@ -102,25 +113,5 @@ public class SettingsFragment extends Fragment {
 
     private void showToast(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-    }
-
-    private AlertDialog.Builder createDialogBuilder(int layoutId) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View dialogView = getLayoutInflater().inflate(layoutId, null);
-        builder.setView(dialogView);
-        return builder;
-    }
-
-    private void setDialogButtons(AlertDialog dialog, Runnable onConfirm, Runnable onCancel) {
-        Button confirmButton = dialog.findViewById(R.id.dialog_save);
-        Button cancelButton = dialog.findViewById(R.id.dialog_cancel);
-
-        confirmButton.setOnClickListener(v -> {
-            onConfirm.run();
-        });
-
-        cancelButton.setOnClickListener(v -> {
-            onCancel.run();
-        });
     }
 }
