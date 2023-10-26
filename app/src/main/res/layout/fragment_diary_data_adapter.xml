@@ -3,7 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginBottom="5dp"
     app:cardCornerRadius="8dp"
     android:minHeight="70dp"
 
@@ -30,7 +33,7 @@
                 android:textStyle="bold"
                 android:paddingStart="30dp"
                 android:paddingEnd="30dp"
-                android:fontFamily="@font/poppins_bold"
+
                 style="@style/MyCustomTextViewStyle"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

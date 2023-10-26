@@ -19,7 +19,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class DiaryLayout3Fragment extends Fragment {
-    public static final String ARG_CONTENT = "content";
+    public static final String Arg_PDFLINK = "pdflink";
 
     // Variable to store the current URL
     private String currentPdfUrl = null;
@@ -27,7 +27,7 @@ public class DiaryLayout3Fragment extends Fragment {
     public static DiaryLayout3Fragment newInstance(String pdfUrl) {
         DiaryLayout3Fragment fragment = new DiaryLayout3Fragment();
         Bundle args = new Bundle();
-        args.putString(ARG_CONTENT, pdfUrl);
+        args.putString(Arg_PDFLINK, pdfUrl);
         fragment.setArguments(args);
         return fragment;
     }
@@ -39,7 +39,7 @@ public class DiaryLayout3Fragment extends Fragment {
         PDFView pdfView = rootView.findViewById(R.id.pdfView);
 
         if (getArguments() != null) {
-            String pdfUrl = getArguments().getString(ARG_CONTENT);
+            String pdfUrl = getArguments().getString(Arg_PDFLINK);
 
             // Check if the PDF is already downloaded
             File pdfFile = getLocalPdfFile(pdfUrl);

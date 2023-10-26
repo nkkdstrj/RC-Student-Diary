@@ -1,17 +1,18 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
+
 public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdapterFragment.ItemViewHolder> {
 
     private List<DiaryDataModelFragment> mList;
@@ -39,9 +40,11 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
     public int getItemCount() {
         return mList.size();
     }
+
     public class ItemViewHolder extends RecyclerView.ViewHolder {
         private TextView mTextView;
         private RecyclerView nestedRecyclerView;
+        private static final long COOLDOWN_DELAY = 300;
 
         public ItemViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -50,38 +53,43 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
         }
 
         public void bind(DiaryDataModelFragment model) {
-            mTextView.setText(model.getItemText());
-            List<DiaryDataModelFragment> fragmentList = model.getFragmentList();
+            mTextView.setText(model.getMain_btn());
+            List<DiaryDataModelFragment> sub_btn = model.getSub_btn();
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (fragmentList.size() == 1) {
+                    if (model.isExpanding()) {
+                        // If it's already expanding, ignore the click
+                        return;
+                    }
+
+                    // Set the flag to indicate that it's expanding
+                    model.setExpanding(true);
+
+                    if (sub_btn.size() == 1) {
                         // If there's only one sub-item, navigate directly to its content
-                        DiaryDataModelFragment subItem = fragmentList.get(0);
+                        DiaryDataModelFragment subItem = sub_btn.get(0);
                         int layoutValue = subItem.getLayout();
                         switch (layoutValue) {
                             case 3:
                                 // Replace with DiaryLayout3Fragment
-                                Fragment diaryLayout3Fragment = DiaryLayout3Fragment.newInstance(subItem.getContent());
                                 // Redirect to the specific layout when clicked
-                                replaceFragment(diaryLayout3Fragment);
+                                replaceFragment(DiaryLayout3Fragment.newInstance(subItem.getPdflink()));
                                 break;
                             case 1:
                                 // Replace with DiaryLayout1Fragment
-                                Fragment diaryLayout1Fragment = DiaryLayout1Fragment.newInstance(
+                                // Redirect to the specific layout when clicked
+                                replaceFragment(DiaryLayout1Fragment.newInstance(
                                         subItem.getContent(),
                                         subItem.getAudio(),
-                                        subItem.getPicture()
-                                );
-                                // Redirect to the specific layout when clicked
-                                replaceFragment(diaryLayout1Fragment);
+                                        subItem.getPdflink()
+                                ));
                                 break;
                             case 2:
                                 // Replace with DiaryLayout2Fragment
-                                Fragment diaryLayout2Fragment = DiaryLayout2Fragment.newInstance(subItem.getItemText());
                                 // Redirect to the specific layout when clicked
-                                replaceFragment(diaryLayout2Fragment);
+                                replaceFragment(DiaryLayout2Fragment.newInstance(subItem.getMain_btn()));
                                 break;
                             // Add cases for other layout values as needed
                             default:
@@ -93,6 +101,16 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
                         model.setExpandable(!model.isExpandable());
                         notifyItemChanged(getAdapterPosition());
                     }
+
+                    // Add a delay or cooldown period
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Reset the flag after the cooldown period
+                            model.setExpanding(false);
+                        }
+                    }, COOLDOWN_DELAY);
                 }
             });
 
@@ -100,15 +118,13 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
             boolean isExpandable = model.isExpandable();
             nestedRecyclerView.setVisibility(isExpandable ? View.VISIBLE : View.GONE);
 
-            DiaryNestedAdapterFragment adapter = new DiaryNestedAdapterFragment(fragmentList, itemView.getContext());
+            DiaryNestedAdapterFragment adapter = new DiaryNestedAdapterFragment(sub_btn, itemView.getContext());
             nestedRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
             nestedRecyclerView.setHasFixedSize(true);
             nestedRecyclerView.setAdapter(adapter);
         }
 
-
         private void replaceFragment(Fragment newFragment) {
-
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.frame_layout, newFragment);
             fragmentTransaction.addToBackStack(null);

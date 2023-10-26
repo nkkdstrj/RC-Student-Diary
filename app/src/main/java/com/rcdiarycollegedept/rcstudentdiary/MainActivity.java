@@ -98,12 +98,12 @@ public class MainActivity extends AppCompatActivity {
                             String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
                             String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
                             Integer subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class); // Use Integer instead of int
-                            String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
+                            String subButtonPdflink = subButtonSnapshot.child("pdflink").getValue(String.class);
 
                             // Check for null values before using them
-                            if (subButtonName != null && subButtonAudio != null && subButtonContent != null && subButtonLayout != null) {
-                                downloadAndStorePDF(getApplicationContext(), mList, subButtonContent);
-                                subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
+                            if (subButtonName != null && subButtonAudio != null && subButtonContent != null && subButtonLayout != null && subButtonPdflink != null) {
+                                downloadAndStorePDF(getApplicationContext(), mList, subButtonPdflink);
+                                subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPdflink));
                             }
                         }
                         mList.add(new DiaryDataModelFragment(buttonName, subButtonList));
@@ -160,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String extractedText = extractTextFromPdf(pdfFile);
                     if (extractedText != null) {
-                        updateAudioFieldInFirebase(pdfUrl, extractedText);
+                        updateContentFieldInFirebase(pdfUrl, extractedText);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -191,18 +191,18 @@ public class MainActivity extends AppCompatActivity {
             return null;
         }
 
-        private void updateAudioFieldInFirebase(String pdfUrl, String extractedText) {
+        private void updateContentFieldInFirebase(String pdfUrl, String extractedText) {
             DatabaseReference reference = mDatabase.getReference("diarycontent_btn");
             reference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
                         for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
-                            String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
-                            if (subButtonContent != null && pdfUrl.equals(subButtonContent)) {
+                            String subButtonPdflink= subButtonSnapshot.child("pdflink").getValue(String.class);
+                            if (subButtonPdflink != null && pdfUrl.equals(subButtonPdflink)) {
                                 // Match found, update the "audio" field
-                                DatabaseReference audioReference = subButtonSnapshot.getRef().child("audio");
-                                audioReference.setValue(extractedText);
+                                DatabaseReference contentReference = subButtonSnapshot.getRef().child("content");
+                                contentReference.setValue(extractedText);
                             }
                         }
                     }
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("FirebaseError", "Error updating audio field: " + databaseError.getMessage());
+                    Log.e("FirebaseError", "Error updating content field: " + databaseError.getMessage());
                 }
             });
         }

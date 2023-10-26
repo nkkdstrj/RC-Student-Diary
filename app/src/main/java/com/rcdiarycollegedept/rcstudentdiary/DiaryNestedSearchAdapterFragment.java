@@ -36,7 +36,7 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
         DiaryDataModelFragment model = searchResults.get(position);
 
         // Bind data for search result using the same layout
-        holder.mTv.setText(model.getItemText());
+        holder.mTv.setText(model.getMain_btn());
 
         holder.mTv.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,7 +46,7 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
                     case 3:
                         // Replace with DiaryLayout1Fragment
                         Fragment diaryLayout3Fragment = DiaryLayout3Fragment.newInstance(
-                                model.getContent()
+                                model.getPdflink()
 
                         );
                         // Redirect to the specific layout when clicked
@@ -57,7 +57,7 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
                         Fragment diaryLayout1Fragment = DiaryLayout1Fragment.newInstance(
                                 model.getContent(),
                                 model.getAudio(),
-                                model.getPicture()
+                                model.getPdflink()
 
                         );
                         // Redirect to the specific layout when clicked
@@ -66,7 +66,7 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
                     case 2:
                         // Replace with DiaryLayout2Fragment
                         Fragment diaryLayout2Fragment = DiaryLayout2Fragment.newInstance(
-                                model.getItemText()
+                                model.getMain_btn()
                         );
                         // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout2Fragment);

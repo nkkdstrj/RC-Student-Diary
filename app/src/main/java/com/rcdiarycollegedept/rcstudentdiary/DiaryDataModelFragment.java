@@ -5,32 +5,33 @@ import java.util.List;
 import java.util.Map;
 
 public class DiaryDataModelFragment {
-    private List<DiaryDataModelFragment> fragmentList; // Store a list of fragments
-    private String itemText;
+    private List<DiaryDataModelFragment> sub_btn; // Store a list of fragments
+    private String main_btn;
     private String pdfFilePath;
+    private boolean isExpanding = false;
     private boolean isExpandable;
     private Fragment fragment; // Change the type to Fragment
     private String audio;
     private String content;
     private int layout;
-    private String picture;
+    private String pdflink;
     private Map<String, Map<String, String>> tables;
     // Constructor for main buttons with sub-buttons
-    public DiaryDataModelFragment(String itemText, List<DiaryDataModelFragment> fragmentList) {
-        this.itemText = itemText;
-        this.fragmentList = fragmentList;
+    public DiaryDataModelFragment(String main_btn, List<DiaryDataModelFragment> sub_btn) {
+        this.main_btn = main_btn;
+        this.sub_btn = sub_btn;
         this.isExpandable = false;
 
 
     }
 
     // Constructor for sub-buttons
-    public DiaryDataModelFragment(String itemText, String audio, String content, int layout, String picture) {
-        this.itemText = itemText;
+    public DiaryDataModelFragment(String main_btn, String audio, String content, int layout, String pdflink) {
+        this.main_btn = main_btn;
         this.audio = audio;
         this.content = content;
         this.layout = layout;
-        this.picture = picture;
+        this.pdflink = pdflink;
         this.isExpandable = false;
 
     }
@@ -38,13 +39,16 @@ public class DiaryDataModelFragment {
     public void setExpandable(boolean expandable) {
         isExpandable = expandable;
     }
-
-    public List<DiaryDataModelFragment> getFragmentList() {
-        return fragmentList;
+    public void setExpanding(boolean expanding) {
+        isExpanding = expanding;
     }
 
-    public String getItemText() {
-        return itemText;
+    public List<DiaryDataModelFragment> getSub_btn() {
+        return sub_btn;
+    }
+
+    public String getMain_btn() {
+        return main_btn;
     }
 
     public boolean isExpandable() {
@@ -62,9 +66,11 @@ public class DiaryDataModelFragment {
     public int getLayout() {
         return layout;
     }
-
-    public String getPicture() {
-        return picture;
+    public boolean isExpanding() {
+        return isExpanding;
+    }
+    public String getPdflink() {
+        return pdflink;
     }
 
     public Map<String, Map<String, String>> getTables() {

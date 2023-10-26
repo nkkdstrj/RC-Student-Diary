@@ -125,7 +125,7 @@ public class DiaryFragment extends Fragment {
                         String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
                         String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
                         String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
-                        String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
+                        String subButtonPdflink = subButtonSnapshot.child("pdflink").getValue(String.class);
 
                         // Initialize subButtonLayout with a default value (e.g., -1)
                         int subButtonLayout = -1;
@@ -140,7 +140,7 @@ public class DiaryFragment extends Fragment {
                             }
                         }
 
-                        subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
+                        subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPdflink));
                     }
                     mList.add(new DiaryDataModelFragment(buttonName, subButtonList));
                 }
@@ -167,7 +167,7 @@ public class DiaryFragment extends Fragment {
                         String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
                         String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
                         String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
-                        String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
+                        String subButtonPdflink = subButtonSnapshot.child("pdflink").getValue(String.class);
 
                         // Initialize subButtonLayout with a default value (e.g., -1)
                         int subButtonLayout = -1;
@@ -182,7 +182,7 @@ public class DiaryFragment extends Fragment {
                             }
                         }
 
-                        subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
+                        subButtonList.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPdflink));
                     }
                     mList.add(new DiaryDataModelFragment(buttonName, subButtonList));
                 }
@@ -199,6 +199,9 @@ public class DiaryFragment extends Fragment {
         mDatabase.child("diarycontent_btn").addValueEventListener(dataListener);
     }
 
+
+
+
     private void performSearch(String query) {
         DatabaseReference diaryContentRef = mDatabase.child("diarycontent_btn");
 
@@ -208,13 +211,13 @@ public class DiaryFragment extends Fragment {
                 matchingSubButtons.clear();
                 for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
                     for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
-                        String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
-                        if (subButtonAudio != null && subButtonAudio.toLowerCase().contains(query.toLowerCase())) {
+                        String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
+                        if (subButtonContent != null && subButtonContent.toLowerCase().contains(query.toLowerCase())) {
                             String subButtonName = subButtonSnapshot.child("sub_btn_name").getValue(String.class);
-                            String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
+                            String subButtonAudio = subButtonSnapshot.child("audio").getValue(String.class);
                             int subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
-                            String subButtonPicture = subButtonSnapshot.child("picture").getValue(String.class);
-                            matchingSubButtons.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPicture));
+                            String subButtonPdflink = subButtonSnapshot.child("pdflink").getValue(String.class);
+                            matchingSubButtons.add(new DiaryDataModelFragment(subButtonName, subButtonAudio, subButtonContent, subButtonLayout, subButtonPdflink));
                         }
                     }
                 }
