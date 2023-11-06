@@ -1,16 +1,19 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -78,7 +81,7 @@ public class DiaryLayout3Fragment extends Fragment {
         return null;
     }
 
-    private class DownloadAndDisplayPdfTask extends AsyncTask<Void, Void, File> {
+    private class DownloadAndDisplayPdfTask extends android.os.AsyncTask<Void, Void, File> {
         private PDFView pdfView;
         private Context context;
         private String pdfUrl;
@@ -115,6 +118,11 @@ public class DiaryLayout3Fragment extends Fragment {
         private File downloadFile(String pdfUrl) throws IOException {
             URL url = new URL(pdfUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            // Allow network operations on the main thread (this is not recommended for production)
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
             connection.connect();
 
             // Create a temporary file to save the PDF

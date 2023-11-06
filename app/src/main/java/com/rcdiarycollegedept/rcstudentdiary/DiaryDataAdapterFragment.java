@@ -81,7 +81,6 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
                                 // Replace with DiaryLayout1Fragment
                                 // Redirect to the specific layout when clicked
                                 replaceFragment(DiaryLayout1Fragment.newInstance(
-                                        subItem.getContent(),
                                         subItem.getAudio(),
                                         subItem.getPdflink()
                                 ));
@@ -89,7 +88,7 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
                             case 2:
                                 // Replace with DiaryLayout2Fragment
                                 // Redirect to the specific layout when clicked
-                                replaceFragment(DiaryLayout2Fragment.newInstance(subItem.getMain_btn()));
+                                replaceFragment(DiaryLayout2Fragment.newInstance(subItem.getPdflink()));
                                 break;
                             // Add cases for other layout values as needed
                             default:

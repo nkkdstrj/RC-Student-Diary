@@ -1,162 +1,165 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
-import android.os.Build;
+import android.app.DownloadManager;
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
-import androidx.core.content.ContextCompat;
+import android.widget.Button;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.ValueEventListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class DiaryLayout2Fragment extends Fragment {
-    private TableLayout tableLayout;
-    private String subBtnName;
+    public static final String Arg_PDFLINK = "pdflink";
 
-    public static DiaryLayout2Fragment newInstance(String subBtnName) {
+    // Variable to store the current URL
+    private String currentPdfUrl = null;
+
+    public static DiaryLayout2Fragment newInstance(String pdfUrl) {
         DiaryLayout2Fragment fragment = new DiaryLayout2Fragment();
-        fragment.subBtnName = subBtnName;
+        Bundle args = new Bundle();
+        args.putString(Arg_PDFLINK, pdfUrl);
+        fragment.setArguments(args);
         return fragment;
     }
 
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_diary_layout2, container, false);
-        tableLayout = rootView.findViewById(R.id.tableLayout);
+        PDFView pdfView = rootView.findViewById(R.id.pdfView);
+        Button downloadButton = rootView.findViewById(R.id.dlbtn);
 
-        setTableBackground();
-        fetchTableDataFromFirebase();
+        if (getArguments() != null) {
+            String pdfUrl = getArguments().getString(Arg_PDFLINK);
+
+            // Check if the PDF is already downloaded
+            File pdfFile = getLocalPdfFile(pdfUrl);
+
+            if (pdfFile != null) {
+                // PDF is already downloaded, load and display it
+                loadPdf(pdfView, pdfFile);
+            } else {
+                // PDF is not downloaded, initiate the download
+                new DownloadAndDisplayPdfTask(pdfView, getContext(), pdfUrl).execute();
+            }
+
+            // Set an onClickListener for the download button
+            downloadButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Initiate the PDF download
+                    downloadPdf(pdfUrl);
+                }
+            });
+        }
 
         return rootView;
     }
 
-    private void setTableBackground() {
-        int borderDrawableId = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) ?
-                R.drawable.border : R.drawable.border;
-
-        tableLayout.setBackground(ContextCompat.getDrawable(getContext(), borderDrawableId));
+    private void loadPdf(PDFView pdfView, File pdfFile) {
+        pdfView.fromFile(pdfFile)
+                .defaultPage(0)
+                .onLoad(new OnLoadCompleteListener() {
+                    @Override
+                    public void loadComplete(int nbPages) {
+                        // PDF loaded successfully
+                    }
+                })
+                .load();
     }
 
-    private void fetchTableDataFromFirebase() {
-        DatabaseReference diaryContentRef = FirebaseDatabase.getInstance().getReference()
-                .child("diarycontent_btn");
-        diaryContentRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
-                    if (buttonSnapshot.hasChild("btn_sub_btns")) {
-                        DataSnapshot subBtnsSnapshot = buttonSnapshot.child("btn_sub_btns");
-                        for (DataSnapshot subBtnSnapshot : subBtnsSnapshot.getChildren()) {
-                            if (subBtnSnapshot.hasChild("tables")) {
-                                String currentSubBtnName = subBtnSnapshot.child("sub_btn_name").getValue(String.class);
-                                if (currentSubBtnName != null && currentSubBtnName.equals(subBtnName)) {
-                                    createTableFromSnapshot(subBtnSnapshot.child("tables").child("table1"));
-                                }
-                            }
-                        }
-                    }
+    private File getLocalPdfFile(String pdfUrl) {
+        // Create a unique filename based on the PDF URL
+        String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
+        File pdfFile = new File(requireContext().getFilesDir(), filename);
+        if (pdfFile.exists()) {
+            return pdfFile;
+        }
+        return null;
+    }
+
+    private class DownloadAndDisplayPdfTask extends AsyncTask<Void, Void, File> {
+        private PDFView pdfView;
+        private Context context;
+        private String pdfUrl;
+
+        public DownloadAndDisplayPdfTask(PDFView pdfView, Context context, String pdfUrl) {
+            this.pdfView = pdfView;
+            this.context = context;
+            this.pdfUrl = pdfUrl;
+        }
+
+        @Override
+        protected File doInBackground(Void... voids) {
+            try {
+                // Download the PDF file from the URL and save it to local storage
+                File pdfFile = downloadFile(pdfUrl);
+
+                if (pdfFile != null) {
+                    return pdfFile;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(File pdfFile) {
+            if (pdfFile != null) {
+                // Load and display the downloaded PDF
+                loadPdf(pdfView, pdfFile);
+            }
+        }
+
+        private File downloadFile(String pdfUrl) throws IOException {
+            URL url = new URL(pdfUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+
+            // Create a temporary file to save the PDF
+            String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
+            File pdfFile = new File(context.getFilesDir(), filename);
+
+            try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(pdfFile)) {
+                byte[] buffer = new byte[4 * 1024];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
                 }
             }
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Handle errors if needed
-            }
-        });
-    }
-
-    // Inside your DiaryLayout2Fragment class
-    private void createTableFromSnapshot(DataSnapshot tableSnapshot) {
-        List<String> columnNames = new ArrayList<>();
-        TableRow headerRow = new TableRow(getContext());
-
-        // Apply row border background to the header row
-        headerRow.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.table_row_border));
-
-        for (DataSnapshot rowSnapshot : tableSnapshot.getChildren()) {
-            Map<String, String> rowData = rowSnapshot.getValue(new GenericTypeIndicator<Map<String, String>>() {});
-
-            if (rowData != null) {
-                createHeaderRowIfNeeded(rowData, columnNames, headerRow);
-                TableRow row = createTableRow(rowData, columnNames);
-
-                // Apply row border background to the data row
-                row.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.table_row_border));
-
-                // Apply column borders to each cell in the row
-                applyColumnBordersToRow(row, columnNames.size());
-
-                tableLayout.addView(row);
-            }
-        }
-
-        if (tableLayout.getChildCount() > 0) {
-            tableLayout.addView(headerRow, 0);
+            return pdfFile;
         }
     }
 
-    private void applyColumnBordersToRow(TableRow row, int numColumns) {
-        for (int i = 0; i < numColumns; i++) {
-            TextView cell = (TextView) row.getChildAt(i);
+    // Add a method to initiate the PDF download using DownloadManager
+    private void downloadPdf(String pdfUrl) {
+        DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        Uri uri = Uri.parse(pdfUrl);
 
-            // Apply column border background to each cell in the row
-            cell.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.table_cell_border));
-        }
-    }
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
+        String fileName = "Contract"; // Provide the desired file name
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
 
-
-    private void createHeaderRowIfNeeded(Map<String, String> rowData, List<String> columnNames, TableRow headerRow) {
-        for (String columnName : rowData.keySet()) {
-            if (!columnNames.contains(columnName)) {
-                columnNames.add(columnName);
-                TextView headerTextView = createHeaderTextView(columnName);
-                headerRow.addView(headerTextView);
-            }
-        }
-    }
-
-    private TextView createHeaderTextView(String columnName) {
-        TextView headerTextView = new TextView(getContext());
-        headerTextView.setText(columnName);
-        headerTextView.setGravity(Gravity.CENTER);
-        return headerTextView;
-    }
-
-    private TableRow createTableRow(Map<String, String> rowData, List<String> columnNames) {
-        TableRow row = new TableRow(getContext());
-
-        for (String columnName : columnNames) {
-            TextView cellTextView = createCellTextView(rowData.get(columnName));
-            row.addView(cellTextView);
-        }
-
-        return row;
-    }
-
-    private TextView createCellTextView(String text) {
-        TextView cellTextView = new TextView(getContext());
-        cellTextView.setLayoutParams(new TableRow.LayoutParams(
-                TableRow.LayoutParams.WRAP_CONTENT,
-                TableRow.LayoutParams.WRAP_CONTENT));
-        int paddingInDp = 8;
-        float cellScale = getResources().getDisplayMetrics().density;
-        int paddingInPx = (int) (paddingInDp * cellScale + 0.5f);
-        cellTextView.setPadding(paddingInPx, paddingInPx, paddingInPx, paddingInPx);
-        cellTextView.setText(text);
-        return cellTextView;
+        // Enqueue the download request
+        downloadManager.enqueue(request);
     }
 }
