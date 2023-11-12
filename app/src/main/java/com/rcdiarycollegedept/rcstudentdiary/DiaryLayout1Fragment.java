@@ -1,47 +1,45 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
+import android.content.Context;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import com.github.barteksc.pdfviewer.PDFView;
+import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class DiaryLayout1Fragment extends Fragment {
-    public static final String ARG_CONTENT = "content";
-    public static final String ARG_AUDIO = "audio";
+    public static final String Arg_PDFLINK = "pdflink";
+    public static final String Arg_AUDIO = "audio";
 
-    private String content;
-    private String audio ="https://firebasestorage.googleapis.com/v0/b/rc-student-diary-5cad7.appspot.com/o/silang.mp3?alt=media&token=15c2a6bc-9f69-4fd4-86e0-ab686ae9e4ea";
-
-    private TextView contentTextView;
+    private String currentPdfUrl = null;
+    private MediaPlayer mediaPlayer;
+    private Handler handler = new Handler();
     private TextView playerPosition;
     private TextView playerDuration;
-    private SeekBar seekbar;
-    private ImageView btplay;
-    private ImageView btpause;
-    private MediaPlayer mediaPlayer;
-    private Handler handler;
-    private Runnable runnable;
-    private boolean isPrepared = false;
-    private boolean isPlaying = false;
 
-    public static DiaryLayout1Fragment newInstance(String content, String audio, String picture) {
+    public static DiaryLayout1Fragment newInstance(String pdfUrl, String audioUrl) {
         DiaryLayout1Fragment fragment = new DiaryLayout1Fragment();
         Bundle args = new Bundle();
-        args.putString(ARG_CONTENT, content);
-        args.putString(ARG_AUDIO, audio);
-
+        args.putString(Arg_PDFLINK, pdfUrl);
+        args.putString(Arg_AUDIO, audioUrl);
         fragment.setArguments(args);
         return fragment;
     }
@@ -50,130 +48,218 @@ public class DiaryLayout1Fragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_diary_layout1, container, false);
+        PDFView pdfView = rootView.findViewById(R.id.pdfView);
 
-        contentTextView = rootView.findViewById(R.id.textViewLyrics);
+        // Audio Player components
+        mediaPlayer = new MediaPlayer();
+        ImageView playButton = rootView.findViewById(R.id.bt_play);
+        ImageView pauseButton = rootView.findViewById(R.id.bt_pause);
+        SeekBar seekBar = rootView.findViewById(R.id.seek_bar);
         playerPosition = rootView.findViewById(R.id.player_position);
         playerDuration = rootView.findViewById(R.id.player_duration);
-        seekbar = rootView.findViewById(R.id.seek_bar);
-        btplay = rootView.findViewById(R.id.bt_play);
-        btpause = rootView.findViewById(R.id.bt_pause);
 
         if (getArguments() != null) {
-            content = getArguments().getString(ARG_CONTENT);
-            audio = getArguments().getString(ARG_AUDIO);
-            contentTextView.setText(content);
+            String pdfUrl = getArguments().getString(Arg_PDFLINK);
+
+            // Check if the PDF is already downloaded
+            File pdfFile = getLocalPdfFile(pdfUrl);
+
+            if (pdfFile != null) {
+                // PDF is already downloaded, load and display it
+                loadPdf(pdfView, pdfFile);
+            } else {
+                // PDF is not downloaded, initiate the download
+                new DownloadAndDisplayPdfTask(pdfView, getContext(), pdfUrl).execute();
+            }
+
+            String audioUrl = getArguments().getString(Arg_AUDIO);
+            setupAudioPlayer(playButton, pauseButton, seekBar, audioUrl);
         }
 
-        mediaPlayer = new MediaPlayer();
-        handler = new Handler();
+        return rootView;
+    }
 
+    private void setupAudioPlayer(ImageView playButton, ImageView pauseButton, SeekBar seekBar, String audioUrl) {
         try {
-            mediaPlayer.setDataSource(audio);
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    int duration = mediaPlayer.getDuration();
-                    String sDuration = convertFormat(duration);
-                    playerDuration.setText(sDuration);
-                    seekbar.setMax(mediaPlayer.getDuration());
-                    isPrepared = true;
+            mediaPlayer.setDataSource(audioUrl);
+            mediaPlayer.prepare();
 
-                    // Now that media is prepared, you can start playback
-                    togglePlayback();
-                }
-            });
-            mediaPlayer.prepareAsync();
+            // Update the duration once the media player is prepared
+            int duration = mediaPlayer.getDuration();
+            seekBar.setMax(duration);
+            playerDuration.setText(formatTime(duration));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
-        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        playButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!mediaPlayer.isPlaying()) {
+                    mediaPlayer.start();
+                    playButton.setVisibility(View.GONE);
+                    pauseButton.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        pauseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    playButton.setVisibility(View.VISIBLE);
+                    pauseButton.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                playButton.setVisibility(View.VISIBLE);
+                pauseButton.setVisibility(View.GONE);
+                mediaPlayer.seekTo(0);
+            }
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     mediaPlayer.seekTo(progress);
                 }
+                playerPosition.setText(formatTime(progress));
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // Called when the user starts interacting with the SeekBar.
+                // Not needed in this example
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                // Called when the user stops interacting with the SeekBar.
+                // Not needed in this example
             }
         });
 
-        btplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                togglePlayback();
-            }
-        });
-
-        btpause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                togglePlayback();
-            }
-        });
-
-        runnable = new Runnable() {
+        // Update the SeekBar using a Runnable
+        final Runnable updateSeekBar = new Runnable() {
             @Override
             public void run() {
                 if (mediaPlayer != null) {
                     int currentPosition = mediaPlayer.getCurrentPosition();
-                    seekbar.setProgress(currentPosition);
-                    playerPosition.setText(convertFormat(currentPosition));
-                    handler.postDelayed(this, 1000);
+                    seekBar.setProgress(currentPosition);
+                    playerPosition.setText(formatTime(currentPosition));
+                    handler.postDelayed(this, 100); // Update every 100 milliseconds
                 }
             }
         };
 
-        return rootView;
+        handler.postDelayed(updateSeekBar, 0);
     }
 
-    private void togglePlayback() {
-        if (isPrepared) {
-            if (isPlaying) {
-                btpause.setVisibility(View.GONE);
-                btplay.setVisibility(View.VISIBLE);
-                mediaPlayer.pause();
-                handler.removeCallbacks(runnable);
-                isPlaying = false;
-            } else {
-                btplay.setVisibility(View.GONE);
-                btpause.setVisibility(View.VISIBLE);
-                mediaPlayer.start();
-                seekbar.setMax(mediaPlayer.getDuration());
-                handler.postDelayed(runnable, 0);
-                isPlaying = true;
-            }
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Pause the media player when the fragment is paused
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
         }
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        stopAudioPlayback();
-    }
-
-    private void stopAudioPlayback() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
+    public void onDestroy() {
+        super.onDestroy();
+        // Release the media player and remove the callback when the fragment is destroyed
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
             mediaPlayer.release();
-            mediaPlayer = null;
+            handler.removeCallbacksAndMessages(null);
         }
-        handler.removeCallbacks(runnable);
+    }
+    private String formatTime(int ms) {
+        int seconds = (ms / 1000) % 60;
+        int minutes = (ms / 1000) / 60;
+        return String.format("%02d:%02d", minutes, seconds);
     }
 
-    private String convertFormat(int duration) {
-        return String.format("%02d:%02d",
-                TimeUnit.MILLISECONDS.toMinutes(duration),
-                TimeUnit.MILLISECONDS.toSeconds(duration) -
-                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(duration))
-        );
+    private void loadPdf(PDFView pdfView, File pdfFile) {
+        pdfView.fromFile(pdfFile)
+                .defaultPage(0)
+                .onLoad(new OnLoadCompleteListener() {
+                    @Override
+                    public void loadComplete(int nbPages) {
+                        // PDF loaded successfully
+                    }
+                })
+                .load();
+    }
+
+    private File getLocalPdfFile(String pdfUrl) {
+        // Create a unique filename based on the PDF URL
+        String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
+        File pdfFile = new File(getContext().getFilesDir(), filename);
+        if (pdfFile.exists()) {
+            return pdfFile;
+        }
+        return null;
+    }
+
+    private class DownloadAndDisplayPdfTask extends AsyncTask<Void, Void, File> {
+        private PDFView pdfView;
+        private Context context;
+        private String pdfUrl;
+
+        public DownloadAndDisplayPdfTask(PDFView pdfView, Context context, String pdfUrl) {
+            this.pdfView = pdfView;
+            this.context = context;
+            this.pdfUrl = pdfUrl;
+        }
+
+        @Override
+        protected File doInBackground(Void... voids) {
+            try {
+                // Download the PDF file from the URL and save it to local storage
+                File pdfFile = downloadFile(pdfUrl);
+
+                if (pdfFile != null) {
+                    return pdfFile;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(File pdfFile) {
+            if (pdfFile != null) {
+                // Load and display the downloaded PDF
+                loadPdf(pdfView, pdfFile);
+            }
+        }
+
+        private File downloadFile(String pdfUrl) throws IOException {
+            URL url = new URL(pdfUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.connect();
+
+            // Create a temporary file to save the PDF
+            String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
+            File pdfFile = new File(context.getFilesDir(), filename);
+
+            try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(pdfFile)) {
+                byte[] buffer = new byte[4 * 1024];
+                int bytesRead;
+                while ((bytesRead = input.read(buffer)) != -1) {
+                    output.write(buffer, 0, bytesRead);
+                }
+            }
+
+            return pdfFile;
+        }
     }
 }

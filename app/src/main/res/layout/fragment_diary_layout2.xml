@@ -1,28 +1,42 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <ScrollView
+    <!-- PDF Viewer -->
+    <com.github.barteksc.pdfviewer.PDFView
+        android:id="@+id/pdfView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_above="@+id/audioPlayerLayout"
+        android:layout_alignParentTop="true" />
 
-        <TableLayout
-            android:id="@+id/tableLayout"
-            android:layout_width="wrap_content"
+    <!-- Audio Player Components -->
+    <LinearLayout
+        android:id="@+id/audioPlayerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:layout_alignParentBottom="true">
+
+
+        <Button
+            android:id="@+id/dlbtn"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:shrinkColumns="*"
-            android:stretchColumns="*"
-            android:background="@drawable/border">
-        </TableLayout>
+            android:paddingEnd="10dp"
+            android:paddingStart="10dp"
+            android:layout_marginBottom="12dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:backgroundTint="#1e329d"
 
-    </ScrollView>
-</LinearLayout>
+            android:drawableTint="@color/white"
+            android:layout_gravity="center"
+
+            android:text="Download"
+            android:textColor="@color/white"
+           />
+
+    </LinearLayout>
+</RelativeLayout>
