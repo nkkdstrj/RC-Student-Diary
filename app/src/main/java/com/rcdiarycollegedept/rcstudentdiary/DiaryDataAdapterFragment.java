@@ -129,6 +129,8 @@ public class DiaryDataAdapterFragment extends RecyclerView.Adapter<DiaryDataAdap
             fragmentTransaction.replace(R.id.frame_layout, newFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
+            fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
+
     }
 }

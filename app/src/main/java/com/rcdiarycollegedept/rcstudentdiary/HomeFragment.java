@@ -35,6 +35,7 @@ public class HomeFragment extends Fragment {
     private List<PublicReminder> publicReminderList = new ArrayList<>();
     private List<Integer> usedTriviaIndices = new ArrayList<>();
     private int totalTriviaItems = 0;
+    private TextView noRemindersTextView;
 
     private boolean newReminderFetched = false; // Flag to track new reminders
 
@@ -70,6 +71,9 @@ public class HomeFragment extends Fragment {
         publicReminderRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         publicReminderAdapter = new PublicReminderAdapter(requireContext(), publicReminderList);
         publicReminderRecyclerView.setAdapter(publicReminderAdapter);
+
+        noRemindersTextView = rootView.findViewById(R.id.noRemindersTextView);
+        noRemindersTextView.setVisibility(View.GONE);
     }
 
     private void setDayAndDate() {
@@ -108,6 +112,12 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    private boolean isCurrentDateTimeMatch(PublicReminder publicReminder) {
+        Date currentDate = new Date(); // Current date and time
+        Date reminderDate = publicReminder.getDate(); // Saved date and time from PublicReminder
+        return currentDate.equals(reminderDate);
+    }
+
     private void fetchPublicRemindersFromFirebase() {
         DatabaseReference publicRemindersRef = FirebaseDatabase.getInstance().getReference().child("PublicReminders");
 
@@ -121,6 +131,7 @@ public class HomeFragment extends Fragment {
                 dayTextView.setVisibility(View.VISIBLE);
 
                 publicReminderList.clear();
+
                 for (DataSnapshot reminderSnapshot : dataSnapshot.getChildren()) {
                     for (DataSnapshot eventSnapshot : reminderSnapshot.getChildren()) {
                         PublicReminder publicReminder = eventSnapshot.getValue(PublicReminder.class);
@@ -130,6 +141,12 @@ public class HomeFragment extends Fragment {
                             try {
                                 Date date = dateFormat.parse(eventSnapshot.getKey());
                                 publicReminder.setDate(date);
+
+                                // Check if the current date and time match the saved date and time
+                                if (isCurrentDateTimeMatch(publicReminder)) {
+                                    sendNotification(publicReminder.getEventName());
+                                }
+
                                 publicReminderList.add(publicReminder);
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -137,14 +154,14 @@ public class HomeFragment extends Fragment {
                         }
                     }
                 }
+
+                // Update the visibility of noRemindersTextView
+                noRemindersTextView.setVisibility(publicReminderList.isEmpty() ? View.VISIBLE : View.GONE);
+
                 publicReminderAdapter.notifyDataSetChanged();
 
-                // Check for new reminders and send a notification
-                if (newReminderFetched) {
-                    String eventName = publicReminderList.get(publicReminderList.size() - 1).getEventName();
-                    sendNotification(eventName);
-                    newReminderFetched = true; // Reset the flag
-                }
+                // Set the newReminderFetched flag to true when a new reminder is fetched
+                newReminderFetched = !publicReminderList.isEmpty();
             }
 
             @Override
