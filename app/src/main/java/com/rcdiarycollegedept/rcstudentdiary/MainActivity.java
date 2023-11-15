@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     private FirebaseDatabase mDatabase;
     private DiaryDataAdapterFragment adapter;
-
+    private OnBackPressedListener onBackPressedListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,14 +75,62 @@ public class MainActivity extends AppCompatActivity {
 
         downloadAllPDFs();
     }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.handbook:
+                // Log statement to check if this block is executed
+                Log.d("MenuClicked", "Handbook menu item selected");
+
+                // Clear the back stack before navigating to the DiaryFragment
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+                // Log statement to check if the back stack is cleared
+                Log.d("BackStackCleared", "BackStack cleared");
+
+                // Add a new instance of the DiaryFragment
+                replaceFragment(new DiaryFragment());
+
+                // Log statement to check if the DiaryFragment is added
+                Log.d("DiaryFragmentAdded", "DiaryFragment added");
+
+                return true;
+            // ... other menu items ...
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
+
+        // Clear the back stack before adding the new fragment
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);
+        fragmentTransaction.addToBackStack(null); // Add the transaction to the back stack
         fragmentTransaction.commit();
     }
 
+
+    public interface OnBackPressedListener {
+        void onBackPressed();
+    }
+
+    public void setOnBackPressedListener(OnBackPressedListener listener) {
+        this.onBackPressedListener = listener;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (onBackPressedListener != null) {
+            // Notify the listener, and let it handle the back press
+            onBackPressedListener.onBackPressed();
+        } else {
+            // Handle the back press normally
+            super.onBackPressed();
+        }
+    }
     private void downloadAllPDFs() {
         mDatabase.getReference("diarycontent_btn").addListenerForSingleValueEvent(new ValueEventListener() {
 

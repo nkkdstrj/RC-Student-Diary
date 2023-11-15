@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
@@ -139,5 +140,28 @@ public class DiaryLayout3Fragment extends Fragment {
 
             return pdfFile;
         }
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
+                // Check if the current fragment is DiaryLayout1Fragment
+                if (isVisible()) {
+                    // If DiaryLayout1Fragment is visible, pop the back stack
+                    getActivity().getSupportFragmentManager().popBackStack();
+
+                    // Also, ensure DiaryFragment is added to the back stack
+                    replaceDiaryFragment();
+                }
+            });
+        }
+    }
+
+    private void replaceDiaryFragment() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, new DiaryFragment());
+        transaction.addToBackStack(null); // Add to the back stack
+        transaction.commit();
     }
 }

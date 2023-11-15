@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -253,7 +254,19 @@ public class NotesFragment extends Fragment {
             userNotesRef.child(noteId).setValue(welcomeNoteData);
         }
     }
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
+                // Check if the current fragment is NotesFragment
+                if (isVisible()) {
+                    // If NotesFragment is visible, exit the app
+                    getActivity().finish();
+                }
+            });
+        }
+    }
     @Override
     public void onStart() {
         super.onStart();

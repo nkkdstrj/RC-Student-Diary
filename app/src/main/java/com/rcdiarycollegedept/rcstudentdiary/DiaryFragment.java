@@ -29,7 +29,7 @@ public class DiaryFragment extends Fragment {
     private DiaryNestedSearchAdapterFragment searchResultsAdapter;
     private FragmentDiaryBinding binding;
     private DatabaseReference mDatabase;
-
+    private boolean isMainButtonExpanded = false;
     private List<DiaryDataModelFragment> matchingSubButtons = new ArrayList<>();
 
     private RecyclerView searchResultsRecyclerView;
@@ -154,7 +154,9 @@ public class DiaryFragment extends Fragment {
             }
         });
     }
-
+    public void setMainButtonExpanded(boolean expanded) {
+        isMainButtonExpanded = expanded;
+    }
     private void addDataListener() {
         dataListener = new ValueEventListener() {
             @Override
@@ -199,7 +201,19 @@ public class DiaryFragment extends Fragment {
         mDatabase.child("diarycontent_btn").addValueEventListener(dataListener);
     }
 
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
+                // Check if the current fragment is NotesFragment
+                if (isVisible()) {
+                    // If NotesFragment is visible, exit the app
+                    getActivity().finish();
+                }
+            });
+        }
+    }
 
 
     private void performSearch(String query) {

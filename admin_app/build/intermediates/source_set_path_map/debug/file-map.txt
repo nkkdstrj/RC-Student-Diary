@@ -1,0 +1,39 @@
+com.rcdiarycollegedept.admin_app-jetified-lifecycle-process-2.4.1-0 C:\Users\brian\.gradle\caches\transforms-3\0023dda4a3c311ac52d642c1edc2c54d\transformed\jetified-lifecycle-process-2.4.1\res
+com.rcdiarycollegedept.admin_app-jetified-android-pdf-viewer-3.2.0-beta.1-1 C:\Users\brian\.gradle\caches\transforms-3\00903f40fa3e7516248a6730ac692056\transformed\jetified-android-pdf-viewer-3.2.0-beta.1\res
+com.rcdiarycollegedept.admin_app-browser-1.4.0-2 C:\Users\brian\.gradle\caches\transforms-3\06f444452d5563e6e800d72c4e43bd33\transformed\browser-1.4.0\res
+com.rcdiarycollegedept.admin_app-lifecycle-runtime-2.5.1-3 C:\Users\brian\.gradle\caches\transforms-3\1140bc6e77c865b478b370fd2d3126a8\transformed\lifecycle-runtime-2.5.1\res
+com.rcdiarycollegedept.admin_app-media-1.0.0-4 C:\Users\brian\.gradle\caches\transforms-3\11de8a6333dd487e43162382f2e0209e\transformed\media-1.0.0\res
+com.rcdiarycollegedept.admin_app-lifecycle-viewmodel-2.5.1-5 C:\Users\brian\.gradle\caches\transforms-3\1a3fe833e1712dc9d06342291f9781a1\transformed\lifecycle-viewmodel-2.5.1\res
+com.rcdiarycollegedept.admin_app-material-1.9.0-6 C:\Users\brian\.gradle\caches\transforms-3\292e35ce7666e6a7fa177c368ded1057\transformed\material-1.9.0\res
+com.rcdiarycollegedept.admin_app-jetified-core-ktx-1.9.0-7 C:\Users\brian\.gradle\caches\transforms-3\36344b3a85923c34db71167081d6cf6b\transformed\jetified-core-ktx-1.9.0\res
+com.rcdiarycollegedept.admin_app-core-1.9.0-8 C:\Users\brian\.gradle\caches\transforms-3\41dff7bd20007be47ea366e19c7bf91e\transformed\core-1.9.0\res
+com.rcdiarycollegedept.admin_app-jetified-emoji2-1.2.0-9 C:\Users\brian\.gradle\caches\transforms-3\478aa900d4773636338495f27cb358b8\transformed\jetified-emoji2-1.2.0\res
+com.rcdiarycollegedept.admin_app-jetified-savedstate-1.2.0-10 C:\Users\brian\.gradle\caches\transforms-3\4be9ec8586ff464a5cc534dae25d2b73\transformed\jetified-savedstate-1.2.0\res
+com.rcdiarycollegedept.admin_app-jetified-annotation-experimental-1.3.0-11 C:\Users\brian\.gradle\caches\transforms-3\4c88fcd2777ed8c2d14e5acb87041afd\transformed\jetified-annotation-experimental-1.3.0\res
+com.rcdiarycollegedept.admin_app-jetified-play-services-basement-18.1.0-12 C:\Users\brian\.gradle\caches\transforms-3\54f425ca7e770475d788de7493b47471\transformed\jetified-play-services-basement-18.1.0\res
+com.rcdiarycollegedept.admin_app-jetified-viewpager2-1.0.0-13 C:\Users\brian\.gradle\caches\transforms-3\59fa9709f1fcaa2e48c3ec3067a0b1fe\transformed\jetified-viewpager2-1.0.0\res
+com.rcdiarycollegedept.admin_app-cardview-1.0.0-14 C:\Users\brian\.gradle\caches\transforms-3\65556b45d01e0034336d7d4f35aa3f53\transformed\cardview-1.0.0\res
+com.rcdiarycollegedept.admin_app-jetified-firebase-common-20.4.2-15 C:\Users\brian\.gradle\caches\transforms-3\7df79c334df356baca92dc3ce96d80d2\transformed\jetified-firebase-common-20.4.2\res
+com.rcdiarycollegedept.admin_app-jetified-startup-runtime-1.1.1-16 C:\Users\brian\.gradle\caches\transforms-3\97f173ba5984f25338167448a8e149c8\transformed\jetified-startup-runtime-1.1.1\res
+com.rcdiarycollegedept.admin_app-jetified-activity-1.6.0-17 C:\Users\brian\.gradle\caches\transforms-3\9899cca8d1d57644d3b74948d86ae71c\transformed\jetified-activity-1.6.0\res
+com.rcdiarycollegedept.admin_app-transition-1.2.0-18 C:\Users\brian\.gradle\caches\transforms-3\a59ee9ebe9fd1168d814ec68c9c2ca36\transformed\transition-1.2.0\res
+com.rcdiarycollegedept.admin_app-appcompat-1.6.1-19 C:\Users\brian\.gradle\caches\transforms-3\aaff10a6598d36a27b36d631e21e14af\transformed\appcompat-1.6.1\res
+com.rcdiarycollegedept.admin_app-lifecycle-livedata-core-2.5.1-20 C:\Users\brian\.gradle\caches\transforms-3\ae93387079d05cc3aa6f53fe97493b86\transformed\lifecycle-livedata-core-2.5.1\res
+com.rcdiarycollegedept.admin_app-constraintlayout-2.1.4-21 C:\Users\brian\.gradle\caches\transforms-3\b3d4fd1d21f7a8b0abcc39e7b51f9c83\transformed\constraintlayout-2.1.4\res
+com.rcdiarycollegedept.admin_app-jetified-emoji2-views-helper-1.2.0-22 C:\Users\brian\.gradle\caches\transforms-3\b6a9767cc8864b5b1405e72b576af8eb\transformed\jetified-emoji2-views-helper-1.2.0\res
+com.rcdiarycollegedept.admin_app-jetified-lifecycle-viewmodel-savedstate-2.5.1-23 C:\Users\brian\.gradle\caches\transforms-3\c86af3ccf9428d6685450d8bd70ea404\transformed\jetified-lifecycle-viewmodel-savedstate-2.5.1\res
+com.rcdiarycollegedept.admin_app-jetified-play-services-base-18.1.0-24 C:\Users\brian\.gradle\caches\transforms-3\d32621ba7c8f915f8e50ece183ca24f1\transformed\jetified-play-services-base-18.1.0\res
+com.rcdiarycollegedept.admin_app-fragment-1.3.6-25 C:\Users\brian\.gradle\caches\transforms-3\d3a42dde7126c0fc69fefd9a2bd4edc3\transformed\fragment-1.3.6\res
+com.rcdiarycollegedept.admin_app-recyclerview-1.1.0-26 C:\Users\brian\.gradle\caches\transforms-3\e15da6385ad1bdeab65e40d0db359c9a\transformed\recyclerview-1.1.0\res
+com.rcdiarycollegedept.admin_app-drawerlayout-1.1.1-27 C:\Users\brian\.gradle\caches\transforms-3\e752424b9c4294948cb930c6060439b9\transformed\drawerlayout-1.1.1\res
+com.rcdiarycollegedept.admin_app-coordinatorlayout-1.1.0-28 C:\Users\brian\.gradle\caches\transforms-3\fa71fde22119638208c70a87dcdce27f\transformed\coordinatorlayout-1.1.0\res
+com.rcdiarycollegedept.admin_app-jetified-appcompat-resources-1.6.1-29 C:\Users\brian\.gradle\caches\transforms-3\fe5fe5e38c3d1608fd4b40ea75728815\transformed\jetified-appcompat-resources-1.6.1\res
+com.rcdiarycollegedept.admin_app-google-services-30 D:\brian\New folder\admin_app\build\generated\res\google-services\debug
+com.rcdiarycollegedept.admin_app-pngs-31 D:\brian\New folder\admin_app\build\generated\res\pngs\debug
+com.rcdiarycollegedept.admin_app-resValues-32 D:\brian\New folder\admin_app\build\generated\res\resValues\debug
+com.rcdiarycollegedept.admin_app-rs-33 D:\brian\New folder\admin_app\build\generated\res\rs\debug
+com.rcdiarycollegedept.admin_app-packageDebugResources-34 D:\brian\New folder\admin_app\build\intermediates\incremental\debug\packageDebugResources\merged.dir
+com.rcdiarycollegedept.admin_app-packageDebugResources-35 D:\brian\New folder\admin_app\build\intermediates\incremental\debug\packageDebugResources\stripped.dir
+com.rcdiarycollegedept.admin_app-merged_res-36 D:\brian\New folder\admin_app\build\intermediates\merged_res\debug
+com.rcdiarycollegedept.admin_app-debug-37 D:\brian\New folder\admin_app\src\debug\res
+com.rcdiarycollegedept.admin_app-main-38 D:\brian\New folder\admin_app\src\main\res
