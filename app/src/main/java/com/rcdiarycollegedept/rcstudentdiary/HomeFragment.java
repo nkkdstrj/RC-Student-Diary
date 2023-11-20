@@ -112,12 +112,6 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    private boolean isCurrentDateTimeMatch(PublicReminder publicReminder) {
-        Date currentDate = new Date(); // Current date and time
-        Date reminderDate = publicReminder.getDate(); // Saved date and time from PublicReminder
-        return currentDate.equals(reminderDate);
-    }
-
     private void fetchPublicRemindersFromFirebase() {
         DatabaseReference publicRemindersRef = FirebaseDatabase.getInstance().getReference().child("PublicReminders");
 
@@ -141,12 +135,6 @@ public class HomeFragment extends Fragment {
                             try {
                                 Date date = dateFormat.parse(eventSnapshot.getKey());
                                 publicReminder.setDate(date);
-
-                                // Check if the current date and time match the saved date and time
-                                if (isCurrentDateTimeMatch(publicReminder)) {
-                                    sendNotification(publicReminder.getEventName());
-                                }
-
                                 publicReminderList.add(publicReminder);
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -160,8 +148,12 @@ public class HomeFragment extends Fragment {
 
                 publicReminderAdapter.notifyDataSetChanged();
 
-                // Set the newReminderFetched flag to true when a new reminder is fetched
-                newReminderFetched = !publicReminderList.isEmpty();
+                // Check for new reminders and send a notification
+                if (!publicReminderList.isEmpty() && newReminderFetched) {
+                    String eventName = publicReminderList.get(publicReminderList.size() - 1).getEventName();
+                    sendNotification(eventName);
+                    newReminderFetched = false; // Reset the flag
+                }
             }
 
             @Override

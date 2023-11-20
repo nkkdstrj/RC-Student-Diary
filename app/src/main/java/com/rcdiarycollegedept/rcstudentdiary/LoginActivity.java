@@ -6,14 +6,15 @@ import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText emailEditText, passwordEditText;
+    private EditText studentNumber, passwordEditText;
     private Button loginButton;
     private FirebaseAuth mAuth;
 
@@ -23,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // Initialize UI elements and Firebase authentication
-        emailEditText = findViewById(R.id.emailLogin);
+        studentNumber = findViewById(R.id.studNum);
         passwordEditText = findViewById(R.id.editTextPassword);
         loginButton = findViewById(R.id.LoginButton);
         mAuth = FirebaseAuth.getInstance();
@@ -38,27 +39,27 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
-        String userEmail = emailEditText.getText().toString().trim();
+        String userNumber = studentNumber.getText().toString().trim();
         String userPassword = passwordEditText.getText().toString().trim();
 
-        if (TextUtils.isEmpty(userEmail) || TextUtils.isEmpty(userPassword)) {
+        if (TextUtils.isEmpty(userNumber) || TextUtils.isEmpty(userPassword)) {
             showToast("Please fill in all the details.");
         } else {
-            if (!userEmail.contains("@")) {
-                userEmail += "@rc.edu";
+            if (!userNumber.contains("@")) {
+                userNumber += "@rc.edu";
             }
-            signInUser(userEmail, userPassword);
+            signInUser(userNumber, userPassword);
         }
     }
 
-    private void signInUser(String email, String password) {
-        mAuth.signInWithEmailAndPassword(email, password)
+    private void signInUser(String studnum, String password) {
+        mAuth.signInWithEmailAndPassword(studnum, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         showToast("Login Successful.");
                         startMainActivity();
                     } else {
-                        showToast("Login failed. Please check your email and password.");
+                        showToast("Login failed. Please check your student number and password.");
                     }
                 });
     }
