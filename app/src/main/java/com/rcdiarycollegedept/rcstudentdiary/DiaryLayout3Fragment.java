@@ -25,9 +25,6 @@ import java.net.URL;
 public class DiaryLayout3Fragment extends Fragment {
     public static final String Arg_PDFLINK = "pdflink";
 
-    // Variable to store the current URL
-    private String currentPdfUrl = null;
-
     public static DiaryLayout3Fragment newInstance(String pdfUrl) {
         DiaryLayout3Fragment fragment = new DiaryLayout3Fragment();
         Bundle args = new Bundle();
@@ -45,14 +42,14 @@ public class DiaryLayout3Fragment extends Fragment {
         if (getArguments() != null) {
             String pdfUrl = getArguments().getString(Arg_PDFLINK);
 
-            // Check if the PDF is already downloaded
+
             File pdfFile = getLocalPdfFile(pdfUrl);
 
             if (pdfFile != null) {
-                // PDF is already downloaded, load and display it
+
                 loadPdf(pdfView, pdfFile);
             } else {
-                // PDF is not downloaded, initiate the download
+
                 new DownloadAndDisplayPdfTask(pdfView, getContext(), pdfUrl).execute();
             }
         }
@@ -73,7 +70,7 @@ public class DiaryLayout3Fragment extends Fragment {
     }
 
     private File getLocalPdfFile(String pdfUrl) {
-        // Create a unique filename based on the PDF URL
+
         String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
         File pdfFile = new File(getContext().getFilesDir(), filename);
         if (pdfFile.exists()) {
@@ -96,7 +93,7 @@ public class DiaryLayout3Fragment extends Fragment {
         @Override
         protected File doInBackground(Void... voids) {
             try {
-                // Download the PDF file from the URL and save it to local storage
+
                 File pdfFile = downloadFile(pdfUrl);
 
                 if (pdfFile != null) {
@@ -111,7 +108,7 @@ public class DiaryLayout3Fragment extends Fragment {
         @Override
         protected void onPostExecute(File pdfFile) {
             if (pdfFile != null) {
-                // Load and display the downloaded PDF
+
                 loadPdf(pdfView, pdfFile);
             }
         }
@@ -120,13 +117,13 @@ public class DiaryLayout3Fragment extends Fragment {
             URL url = new URL(pdfUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-            // Allow network operations on the main thread (this is not recommended for production)
+
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
 
             connection.connect();
 
-            // Create a temporary file to save the PDF
+
             String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
             File pdfFile = new File(context.getFilesDir(), filename);
 
@@ -146,12 +143,12 @@ public class DiaryLayout3Fragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (getActivity() != null) {
             ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
-                // Check if the current fragment is DiaryLayout1Fragment
+
                 if (isVisible()) {
-                    // If DiaryLayout1Fragment is visible, pop the back stack
+
                     getActivity().getSupportFragmentManager().popBackStack();
 
-                    // Also, ensure DiaryFragment is added to the back stack
+
                     replaceDiaryFragment();
                 }
             });

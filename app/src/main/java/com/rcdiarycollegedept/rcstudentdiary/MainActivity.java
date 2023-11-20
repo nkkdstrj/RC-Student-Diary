@@ -79,23 +79,23 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.handbook:
-                // Log statement to check if this block is executed
+
                 Log.d("MenuClicked", "Handbook menu item selected");
 
-                // Clear the back stack before navigating to the DiaryFragment
+
                 getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
-                // Log statement to check if the back stack is cleared
+
                 Log.d("BackStackCleared", "BackStack cleared");
 
-                // Add a new instance of the DiaryFragment
+
                 replaceFragment(new DiaryFragment());
 
-                // Log statement to check if the DiaryFragment is added
+
                 Log.d("DiaryFragmentAdded", "DiaryFragment added");
 
                 return true;
-            // ... other menu items ...
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -124,10 +124,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (onBackPressedListener != null) {
-            // Notify the listener, and let it handle the back press
+
             onBackPressedListener.onBackPressed();
         } else {
-            // Handle the back press normally
+
             super.onBackPressed();
         }
     }
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    // Handle the exception or log an error message as needed
+
                 }
             }
 
@@ -193,74 +193,15 @@ public class MainActivity extends AppCompatActivity {
         public void execute() {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<Void> future = executor.submit(() -> {
-                try {
-                    URL url = new URL(pdfUrl);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.connect();
 
-                    try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(pdfFile)) {
-                        byte[] buffer = new byte[4 * 1024];
-                        int bytesRead;
-                        while ((bytesRead = input.read(buffer)) != -1) {
-                            output.write(buffer, 0, bytesRead);
-                        }
-                    }
-
-                    String extractedText = extractTextFromPdf(pdfFile);
-                    if (extractedText != null) {
-                        updateContentFieldInFirebase(pdfUrl, extractedText);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 return null;
             });
 
-            // You can add error handling and other logic here if needed
+
 
             executor.shutdown();
         }
 
-        private String extractTextFromPdf(File pdfFile) {
-            try {
-                PdfReader pdfReader = new PdfReader(pdfFile.getAbsolutePath());
-                int numPages = pdfReader.getNumberOfPages();
-                StringBuilder extractedText = new StringBuilder();
 
-                for (int page = 1; page <= numPages; page++) {
-                    extractedText.append(PdfTextExtractor.getTextFromPage(pdfReader, page));
-                }
-
-                pdfReader.close();
-                return extractedText.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        private void updateContentFieldInFirebase(String pdfUrl, String extractedText) {
-            DatabaseReference reference = mDatabase.getReference("diarycontent_btn");
-            reference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
-                        for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
-                            String subButtonPdflink= subButtonSnapshot.child("pdflink").getValue(String.class);
-                            if (subButtonPdflink != null && pdfUrl.equals(subButtonPdflink)) {
-                                // Match found, update the "audio" field
-                                DatabaseReference contentReference = subButtonSnapshot.getRef().child("content");
-                                contentReference.setValue(extractedText);
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("FirebaseError", "Error updating content field: " + databaseError.getMessage());
-                }
-            });
-        }
     }
 }

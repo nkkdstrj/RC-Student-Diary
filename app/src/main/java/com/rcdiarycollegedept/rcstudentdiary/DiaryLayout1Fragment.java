@@ -255,12 +255,12 @@ public class DiaryLayout1Fragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (getActivity() != null) {
             ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
-                // Check if the current fragment is DiaryLayout1Fragment
+
                 if (isVisible()) {
-                    // If DiaryLayout1Fragment is visible, pop the back stack
+
                     getActivity().getSupportFragmentManager().popBackStack();
 
-                    // Also, ensure DiaryFragment is added to the back stack
+
                     replaceDiaryFragment();
                 }
             });
@@ -270,7 +270,7 @@ public class DiaryLayout1Fragment extends Fragment {
     private void replaceDiaryFragment() {
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.frame_layout, new DiaryFragment());
-        transaction.addToBackStack(null); // Add to the back stack
+        transaction.addToBackStack(null);
         transaction.commit();
     }
 }

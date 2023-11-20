@@ -127,16 +127,16 @@ public class DiaryFragment extends Fragment {
                         String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
                         String subButtonPdflink = subButtonSnapshot.child("pdflink").getValue(String.class);
 
-                        // Initialize subButtonLayout with a default value (e.g., -1)
+
                         int subButtonLayout = -1;
 
-                        // Check if the layout data is available and a valid integer
+
                         if (subButtonSnapshot.hasChild("layout")) {
                             try {
                                 subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
                             } catch (Exception e) {
-                                // Handle the exception (e.g., invalid data format)
-                                subButtonLayout = -1; // Assign a default value or handle the error appropriately
+
+                                subButtonLayout = -1;
                             }
                         }
 
@@ -171,16 +171,16 @@ public class DiaryFragment extends Fragment {
                         String subButtonContent = subButtonSnapshot.child("content").getValue(String.class);
                         String subButtonPdflink = subButtonSnapshot.child("pdflink").getValue(String.class);
 
-                        // Initialize subButtonLayout with a default value (e.g., -1)
+
                         int subButtonLayout = -1;
 
-                        // Check if the layout data is available and a valid integer
+
                         if (subButtonSnapshot.hasChild("layout")) {
                             try {
                                 subButtonLayout = subButtonSnapshot.child("layout").getValue(Integer.class);
                             } catch (Exception e) {
-                                // Handle the exception (e.g., invalid data format)
-                                subButtonLayout = -1; // Assign a default value or handle the error appropriately
+
+                                subButtonLayout = -1;
                             }
                         }
 
@@ -206,9 +206,9 @@ public class DiaryFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         if (getActivity() != null) {
             ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
-                // Check if the current fragment is NotesFragment
+
                 if (isVisible()) {
-                    // If NotesFragment is visible, exit the app
+
                     getActivity().finish();
                 }
             });

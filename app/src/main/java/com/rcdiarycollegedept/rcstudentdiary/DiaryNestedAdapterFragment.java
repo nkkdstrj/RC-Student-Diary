@@ -41,36 +41,26 @@ public class DiaryNestedAdapterFragment extends RecyclerView.Adapter<DiaryNested
                 int layoutValue = model.getLayout();
                 switch (layoutValue) {
                     case 3:
-                        // Replace with DiaryLayout1Fragment
                         Fragment diaryLayout3Fragment = DiaryLayout3Fragment.newInstance(
                                 model.getPdflink()
 
                         );
-                        // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout3Fragment);
                         break;
                     case 1:
-                        // Replace with DiaryLayout1Fragment
                         Fragment diaryLayout1Fragment = DiaryLayout1Fragment.newInstance(
                                 model.getPdflink(),
                                 model.getAudio()
-
-
                         );
-                        // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout1Fragment);
                         break;
                     case 2:
-                        // Replace with DiaryLayout2Fragment
                         Fragment diaryLayout2Fragment = DiaryLayout2Fragment.newInstance(
                                 model.getPdflink()
                         );
-                        // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout2Fragment);
                         break;
-                    // Add cases for other layout values as needed
                     default:
-                        // Handle default case or error
                         break;
                 }
             }
@@ -81,10 +71,8 @@ public class DiaryNestedAdapterFragment extends RecyclerView.Adapter<DiaryNested
     public int getItemCount() {
         return dataList.size();
     }
-
     public class NestedViewHolder extends RecyclerView.ViewHolder {
         private TextView mTv;
-
         public NestedViewHolder(@NonNull View itemView) {
             super(itemView);
             mTv = itemView.findViewById(R.id.buttonn);

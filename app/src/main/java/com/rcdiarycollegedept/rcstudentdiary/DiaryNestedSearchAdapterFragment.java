@@ -26,7 +26,6 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
     @NonNull
     @Override
     public NestedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the layout for search results (fragment_diary_nested_adapter.xml)
         View view = LayoutInflater.from(context).inflate(R.layout.fragment_diary_nested_adapter, parent, false);
         return new NestedViewHolder(view);
     }
@@ -34,46 +33,33 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
     @Override
     public void onBindViewHolder(@NonNull NestedViewHolder holder, int position) {
         DiaryDataModelFragment model = searchResults.get(position);
-
-        // Bind data for search result using the same layout
         holder.mTv.setText(model.getMain_btn());
-
         holder.mTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int layoutValue = model.getLayout();
                 switch (layoutValue) {
                     case 3:
-                        // Replace with DiaryLayout1Fragment
                         Fragment diaryLayout3Fragment = DiaryLayout3Fragment.newInstance(
                                 model.getPdflink()
-
                         );
-                        // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout3Fragment);
                         break;
                     case 1:
-                        // Replace with DiaryLayout1Fragment
                         Fragment diaryLayout1Fragment = DiaryLayout1Fragment.newInstance(
-
                                 model.getAudio(),
                                 model.getPdflink()
-
                         );
-                        // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout1Fragment);
                         break;
                     case 2:
-                        // Replace with DiaryLayout2Fragment
                         Fragment diaryLayout2Fragment = DiaryLayout2Fragment.newInstance(
                                 model.getPdflink()
                         );
-                        // Redirect to the specific layout when clicked
                         replaceFragment(diaryLayout2Fragment);
                         break;
-                    // Add cases for other layout values as needed
                     default:
-                        // Handle default case or error
+
                         break;
                 }
             }
@@ -101,8 +87,6 @@ public class DiaryNestedSearchAdapterFragment extends RecyclerView.Adapter<Diary
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
     }
-
-    // Add this method to update the dataset with search results
     public void updateDataset(List<DiaryDataModelFragment> updatedList) {
         searchResults.clear();
         searchResults.addAll(updatedList);
