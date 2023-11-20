@@ -85,6 +85,4 @@ public class DiaryDataModelFragment {
     public void setTables(Map<String, Map<String, String>> tables) {
         this.tables = tables;
     }
-    }
-
-
+}

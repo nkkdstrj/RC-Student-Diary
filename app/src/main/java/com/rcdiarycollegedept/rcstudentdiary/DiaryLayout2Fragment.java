@@ -13,6 +13,8 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 
@@ -25,9 +27,6 @@ import java.net.URL;
 
 public class DiaryLayout2Fragment extends Fragment {
     public static final String Arg_PDFLINK = "pdflink";
-
-    // Variable to store the current URL
-    private String currentPdfUrl = null;
 
     public static DiaryLayout2Fragment newInstance(String pdfUrl) {
         DiaryLayout2Fragment fragment = new DiaryLayout2Fragment();
@@ -47,22 +46,21 @@ public class DiaryLayout2Fragment extends Fragment {
         if (getArguments() != null) {
             String pdfUrl = getArguments().getString(Arg_PDFLINK);
 
-            // Check if the PDF is already downloaded
             File pdfFile = getLocalPdfFile(pdfUrl);
 
             if (pdfFile != null) {
-                // PDF is already downloaded, load and display it
+
                 loadPdf(pdfView, pdfFile);
             } else {
-                // PDF is not downloaded, initiate the download
+
                 new DownloadAndDisplayPdfTask(pdfView, getContext(), pdfUrl).execute();
             }
 
-            // Set an onClickListener for the download button
+
             downloadButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // Initiate the PDF download
+
                     downloadPdf(pdfUrl);
                 }
             });
@@ -77,14 +75,14 @@ public class DiaryLayout2Fragment extends Fragment {
                 .onLoad(new OnLoadCompleteListener() {
                     @Override
                     public void loadComplete(int nbPages) {
-                        // PDF loaded successfully
+
                     }
                 })
                 .load();
     }
 
     private File getLocalPdfFile(String pdfUrl) {
-        // Create a unique filename based on the PDF URL
+
         String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
         File pdfFile = new File(requireContext().getFilesDir(), filename);
         if (pdfFile.exists()) {
@@ -107,7 +105,7 @@ public class DiaryLayout2Fragment extends Fragment {
         @Override
         protected File doInBackground(Void... voids) {
             try {
-                // Download the PDF file from the URL and save it to local storage
+
                 File pdfFile = downloadFile(pdfUrl);
 
                 if (pdfFile != null) {
@@ -122,7 +120,7 @@ public class DiaryLayout2Fragment extends Fragment {
         @Override
         protected void onPostExecute(File pdfFile) {
             if (pdfFile != null) {
-                // Load and display the downloaded PDF
+
                 loadPdf(pdfView, pdfFile);
             }
         }
@@ -132,7 +130,7 @@ public class DiaryLayout2Fragment extends Fragment {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.connect();
 
-            // Create a temporary file to save the PDF
+
             String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
             File pdfFile = new File(context.getFilesDir(), filename);
 
@@ -148,18 +146,43 @@ public class DiaryLayout2Fragment extends Fragment {
         }
     }
 
-    // Add a method to initiate the PDF download using DownloadManager
+
     private void downloadPdf(String pdfUrl) {
         DownloadManager downloadManager = (DownloadManager) requireContext().getSystemService(Context.DOWNLOAD_SERVICE);
         Uri uri = Uri.parse(pdfUrl);
 
+        String[] splitUrl = pdfUrl.split("/");
+        String pdfTitle = splitUrl[splitUrl.length - 1];
+
         DownloadManager.Request request = new DownloadManager.Request(uri);
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
-        String fileName = "Contract"; // Provide the desired file name
+        String fileName = pdfTitle;
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
 
-        // Enqueue the download request
         downloadManager.enqueue(request);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
+
+                if (isVisible()) {
+
+                    getActivity().getSupportFragmentManager().popBackStack();
+
+                    replaceDiaryFragment();
+                }
+            });
+        }
+    }
+
+    private void replaceDiaryFragment() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, new DiaryFragment());
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

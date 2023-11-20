@@ -15,8 +15,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.github.barteksc.pdfviewer.PDFView;
-import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,10 +30,8 @@ import java.net.URL;
 public class DiaryLayout1Fragment extends Fragment {
     public static final String Arg_PDFLINK = "pdflink";
     public static final String Arg_AUDIO = "audio";
-
-    private String currentPdfUrl = null;
     private MediaPlayer mediaPlayer;
-    private Handler handler = new Handler();
+    private final Handler handler = new Handler();
     private TextView playerPosition;
     private TextView playerDuration;
 
@@ -50,7 +50,7 @@ public class DiaryLayout1Fragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_diary_layout1, container, false);
         PDFView pdfView = rootView.findViewById(R.id.pdfView);
 
-        // Audio Player components
+
         mediaPlayer = new MediaPlayer();
         ImageView playButton = rootView.findViewById(R.id.bt_play);
         ImageView pauseButton = rootView.findViewById(R.id.bt_pause);
@@ -61,14 +61,14 @@ public class DiaryLayout1Fragment extends Fragment {
         if (getArguments() != null) {
             String pdfUrl = getArguments().getString(Arg_PDFLINK);
 
-            // Check if the PDF is already downloaded
+
             File pdfFile = getLocalPdfFile(pdfUrl);
 
             if (pdfFile != null) {
-                // PDF is already downloaded, load and display it
+
                 loadPdf(pdfView, pdfFile);
             } else {
-                // PDF is not downloaded, initiate the download
+
                 new DownloadAndDisplayPdfTask(pdfView, getContext(), pdfUrl).execute();
             }
 
@@ -84,7 +84,7 @@ public class DiaryLayout1Fragment extends Fragment {
             mediaPlayer.setDataSource(audioUrl);
             mediaPlayer.prepare();
 
-            // Update the duration once the media player is prepared
+
             int duration = mediaPlayer.getDuration();
             seekBar.setMax(duration);
             playerDuration.setText(formatTime(duration));
@@ -92,35 +92,26 @@ public class DiaryLayout1Fragment extends Fragment {
             e.printStackTrace();
         }
 
-        playButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!mediaPlayer.isPlaying()) {
-                    mediaPlayer.start();
-                    playButton.setVisibility(View.GONE);
-                    pauseButton.setVisibility(View.VISIBLE);
-                }
+        playButton.setOnClickListener(v -> {
+            if (!mediaPlayer.isPlaying()) {
+                mediaPlayer.start();
+                playButton.setVisibility(View.GONE);
+                pauseButton.setVisibility(View.VISIBLE);
             }
         });
 
-        pauseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mediaPlayer.isPlaying()) {
-                    mediaPlayer.pause();
-                    playButton.setVisibility(View.VISIBLE);
-                    pauseButton.setVisibility(View.GONE);
-                }
-            }
-        });
-
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
+        pauseButton.setOnClickListener(v -> {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
                 playButton.setVisibility(View.VISIBLE);
                 pauseButton.setVisibility(View.GONE);
-                mediaPlayer.seekTo(0);
             }
+        });
+
+        mediaPlayer.setOnCompletionListener(mp -> {
+            playButton.setVisibility(View.VISIBLE);
+            pauseButton.setVisibility(View.GONE);
+            mediaPlayer.seekTo(0);
         });
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -134,16 +125,16 @@ public class DiaryLayout1Fragment extends Fragment {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // Not needed in this example
+
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                // Not needed in this example
+
             }
         });
 
-        // Update the SeekBar using a Runnable
+
         final Runnable updateSeekBar = new Runnable() {
             @Override
             public void run() {
@@ -151,7 +142,7 @@ public class DiaryLayout1Fragment extends Fragment {
                     int currentPosition = mediaPlayer.getCurrentPosition();
                     seekBar.setProgress(currentPosition);
                     playerPosition.setText(formatTime(currentPosition));
-                    handler.postDelayed(this, 100); // Update every 100 milliseconds
+                    handler.postDelayed(this, 100);
                 }
             }
         };
@@ -162,7 +153,7 @@ public class DiaryLayout1Fragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        // Pause the media player when the fragment is paused
+
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
@@ -171,7 +162,7 @@ public class DiaryLayout1Fragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Release the media player and remove the callback when the fragment is destroyed
+
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.stop();
@@ -189,17 +180,14 @@ public class DiaryLayout1Fragment extends Fragment {
     private void loadPdf(PDFView pdfView, File pdfFile) {
         pdfView.fromFile(pdfFile)
                 .defaultPage(0)
-                .onLoad(new OnLoadCompleteListener() {
-                    @Override
-                    public void loadComplete(int nbPages) {
-                        // PDF loaded successfully
-                    }
+                .onLoad(nbPages -> {
+
                 })
                 .load();
     }
 
     private File getLocalPdfFile(String pdfUrl) {
-        // Create a unique filename based on the PDF URL
+
         String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
         File pdfFile = new File(getContext().getFilesDir(), filename);
         if (pdfFile.exists()) {
@@ -222,7 +210,7 @@ public class DiaryLayout1Fragment extends Fragment {
         @Override
         protected File doInBackground(Void... voids) {
             try {
-                // Download the PDF file from the URL and save it to local storage
+
                 File pdfFile = downloadFile(pdfUrl);
 
                 if (pdfFile != null) {
@@ -237,7 +225,7 @@ public class DiaryLayout1Fragment extends Fragment {
         @Override
         protected void onPostExecute(File pdfFile) {
             if (pdfFile != null) {
-                // Load and display the downloaded PDF
+
                 loadPdf(pdfView, pdfFile);
             }
         }
@@ -247,8 +235,8 @@ public class DiaryLayout1Fragment extends Fragment {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.connect();
 
-            // Create a temporary file to save the PDF
-            String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
+
+            String filename = (pdfUrl.hashCode()) + ".pdf";
             File pdfFile = new File(context.getFilesDir(), filename);
 
             try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(pdfFile)) {
@@ -261,5 +249,28 @@ public class DiaryLayout1Fragment extends Fragment {
 
             return pdfFile;
         }
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
+
+                if (isVisible()) {
+
+                    getActivity().getSupportFragmentManager().popBackStack();
+
+
+                    replaceDiaryFragment();
+                }
+            });
+        }
+    }
+
+    private void replaceDiaryFragment() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, new DiaryFragment());
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
 }

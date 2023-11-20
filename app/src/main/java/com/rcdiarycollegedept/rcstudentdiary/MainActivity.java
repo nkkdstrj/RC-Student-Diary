@@ -1,22 +1,26 @@
 package com.rcdiarycollegedept.rcstudentdiary;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+import android.content.Context;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.itextpdf.text.pdf.PdfReader;
-import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import com.rcdiarycollegedept.rcstudentdiary.databinding.ActivityMainBinding;
 
 import java.io.File;
@@ -27,6 +31,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -35,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     private FirebaseDatabase mDatabase;
     private DiaryDataAdapterFragment adapter;
-
+    private OnBackPressedListener onBackPressedListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,14 +75,62 @@ public class MainActivity extends AppCompatActivity {
 
         downloadAllPDFs();
     }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.handbook:
+
+                Log.d("MenuClicked", "Handbook menu item selected");
+
+
+                getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+
+                Log.d("BackStackCleared", "BackStack cleared");
+
+
+                replaceFragment(new DiaryFragment());
+
+
+                Log.d("DiaryFragmentAdded", "DiaryFragment added");
+
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
+
+        // Clear the back stack before adding the new fragment
+        fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);
+        fragmentTransaction.addToBackStack(null); // Add the transaction to the back stack
         fragmentTransaction.commit();
     }
 
+
+    public interface OnBackPressedListener {
+        void onBackPressed();
+    }
+
+    public void setOnBackPressedListener(OnBackPressedListener listener) {
+        this.onBackPressedListener = listener;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (onBackPressedListener != null) {
+
+            onBackPressedListener.onBackPressed();
+        } else {
+
+            super.onBackPressed();
+        }
+    }
     private void downloadAllPDFs() {
         mDatabase.getReference("diarycontent_btn").addListenerForSingleValueEvent(new ValueEventListener() {
 
@@ -103,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    // Handle the exception or log an error message as needed
+
                 }
             }
 
@@ -138,84 +193,15 @@ public class MainActivity extends AppCompatActivity {
         public void execute() {
             ExecutorService executor = Executors.newSingleThreadExecutor();
             Future<Void> future = executor.submit(() -> {
-                try {
-                    URL url = new URL(pdfUrl);
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.connect();
 
-                    try (InputStream input = connection.getInputStream(); FileOutputStream output = new FileOutputStream(pdfFile)) {
-                        byte[] buffer = new byte[4 * 1024];
-                        int bytesRead;
-                        while ((bytesRead = input.read(buffer)) != -1) {
-                            output.write(buffer, 0, bytesRead);
-                        }
-                    }
-
-                    String extractedText = extractTextFromPdf(pdfFile);
-                    if (extractedText != null) {
-                        updateContentFieldInFirebase(pdfUrl, extractedText);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 return null;
             });
 
-            // You can add error handling and other logic here if needed
+
 
             executor.shutdown();
         }
 
-        private String extractTextFromPdf(File pdfFile) {
-            try {
-                PdfReader pdfReader = new PdfReader(pdfFile.getAbsolutePath());
-                int numPages = pdfReader.getNumberOfPages();
-                StringBuilder extractedText = new StringBuilder();
 
-                for (int page = 1; page <= numPages; page++) {
-                    extractedText.append(PdfTextExtractor.getTextFromPage(pdfReader, page));
-                }
-
-                pdfReader.close();
-                return extractedText.toString();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        private void updateContentFieldInFirebase(String pdfUrl, String extractedText) {
-            DatabaseReference reference = mDatabase.getReference("diarycontent_btn");
-            reference.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    for (DataSnapshot buttonSnapshot : dataSnapshot.getChildren()) {
-                        for (DataSnapshot subButtonSnapshot : buttonSnapshot.child("btn_sub_btns").getChildren()) {
-                            String subButtonPdflink= subButtonSnapshot.child("pdflink").getValue(String.class);
-                            if (subButtonPdflink != null && pdfUrl.equals(subButtonPdflink)) {
-                                // Match found, update the "audio" field
-                                DatabaseReference contentReference = subButtonSnapshot.getRef().child("content");
-                                contentReference.setValue(extractedText);
-                            }
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("FirebaseError", "Error updating content field: " + databaseError.getMessage());
-                }
-            });
-        }
     }
-    @Override
-    public void onBackPressed() {
-        int count = getSupportFragmentManager().getBackStackEntryCount();
-        if (count > 0) {
-            getSupportFragmentManager().popBackStack();
-        } else {
-            super.onBackPressed();
-        }
-    }
-
 }

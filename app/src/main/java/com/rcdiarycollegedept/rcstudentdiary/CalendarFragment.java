@@ -20,6 +20,7 @@ import android.widget.ImageButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -253,5 +254,18 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
 
         cancelButton.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
+
+                if (isVisible()) {
+
+                    getActivity().finish();
+                }
+            });
+        }
     }
 }

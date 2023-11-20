@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.github.barteksc.pdfviewer.PDFView;
 import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
@@ -23,9 +24,6 @@ import java.net.URL;
 
 public class DiaryLayout3Fragment extends Fragment {
     public static final String Arg_PDFLINK = "pdflink";
-
-    // Variable to store the current URL
-    private String currentPdfUrl = null;
 
     public static DiaryLayout3Fragment newInstance(String pdfUrl) {
         DiaryLayout3Fragment fragment = new DiaryLayout3Fragment();
@@ -44,14 +42,14 @@ public class DiaryLayout3Fragment extends Fragment {
         if (getArguments() != null) {
             String pdfUrl = getArguments().getString(Arg_PDFLINK);
 
-            // Check if the PDF is already downloaded
+
             File pdfFile = getLocalPdfFile(pdfUrl);
 
             if (pdfFile != null) {
-                // PDF is already downloaded, load and display it
+
                 loadPdf(pdfView, pdfFile);
             } else {
-                // PDF is not downloaded, initiate the download
+
                 new DownloadAndDisplayPdfTask(pdfView, getContext(), pdfUrl).execute();
             }
         }
@@ -72,7 +70,7 @@ public class DiaryLayout3Fragment extends Fragment {
     }
 
     private File getLocalPdfFile(String pdfUrl) {
-        // Create a unique filename based on the PDF URL
+
         String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
         File pdfFile = new File(getContext().getFilesDir(), filename);
         if (pdfFile.exists()) {
@@ -95,7 +93,7 @@ public class DiaryLayout3Fragment extends Fragment {
         @Override
         protected File doInBackground(Void... voids) {
             try {
-                // Download the PDF file from the URL and save it to local storage
+
                 File pdfFile = downloadFile(pdfUrl);
 
                 if (pdfFile != null) {
@@ -110,7 +108,7 @@ public class DiaryLayout3Fragment extends Fragment {
         @Override
         protected void onPostExecute(File pdfFile) {
             if (pdfFile != null) {
-                // Load and display the downloaded PDF
+
                 loadPdf(pdfView, pdfFile);
             }
         }
@@ -119,13 +117,13 @@ public class DiaryLayout3Fragment extends Fragment {
             URL url = new URL(pdfUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
-            // Allow network operations on the main thread (this is not recommended for production)
+
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
 
             connection.connect();
 
-            // Create a temporary file to save the PDF
+
             String filename = String.valueOf(pdfUrl.hashCode()) + ".pdf";
             File pdfFile = new File(context.getFilesDir(), filename);
 
@@ -139,5 +137,28 @@ public class DiaryLayout3Fragment extends Fragment {
 
             return pdfFile;
         }
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if (getActivity() != null) {
+            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
+
+                if (isVisible()) {
+
+                    getActivity().getSupportFragmentManager().popBackStack();
+
+
+                    replaceDiaryFragment();
+                }
+            });
+        }
+    }
+
+    private void replaceDiaryFragment() {
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.frame_layout, new DiaryFragment());
+        transaction.addToBackStack(null); // Add to the back stack
+        transaction.commit();
     }
 }
