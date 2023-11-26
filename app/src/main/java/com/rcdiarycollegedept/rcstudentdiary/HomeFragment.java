@@ -251,17 +251,4 @@ public class HomeFragment extends Fragment {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(requireContext());
         notificationManager.notify(1, notification);
     }
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        if (getActivity() != null) {
-            ((MainActivity) getActivity()).setOnBackPressedListener(() -> {
-
-                if (isVisible()) {
-
-                    getActivity().finish();
-                }
-            });
-        }
-    }
 }

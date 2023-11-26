@@ -5,7 +5,12 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +22,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText studentNumber, passwordEditText;
     private Button loginButton;
     private FirebaseAuth mAuth;
+    private TextView ForgotPasswordButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         // Initialize UI elements and Firebase authentication
+        ForgotPasswordButton = findViewById(R.id.forgotPass);
         studentNumber = findViewById(R.id.studNum);
         passwordEditText = findViewById(R.id.editTextPassword);
         loginButton = findViewById(R.id.LoginButton);
@@ -35,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
             startMainActivity();
         }
 
+        ForgotPasswordButton.setOnClickListener(view -> showForgotPasswordDialog());
         loginButton.setOnClickListener(view -> loginUser());
     }
 
@@ -73,4 +81,19 @@ public class LoginActivity extends AppCompatActivity {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
+    private void showForgotPasswordDialog() {
+        // Create an instance of the ForgotPassFragment
+        ForgotPassFragment forgotPassFragment = new ForgotPassFragment();
+
+        // Get the FragmentManager
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        // Begin a FragmentTransaction
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+
+        // Add the fragment to the transaction and show it as a dialog
+        transaction.add(forgotPassFragment, "ForgotPassFragment");
+        transaction.commit();
+    }
+
 }

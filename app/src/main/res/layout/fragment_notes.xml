@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="@drawable/rounded_shadow_background"
-            android:backgroundTint="#EEEEEE"
+            android:backgroundTint="#B4E4FD"
             android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
