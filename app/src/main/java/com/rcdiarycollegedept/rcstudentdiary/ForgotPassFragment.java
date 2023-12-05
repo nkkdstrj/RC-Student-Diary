@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.auth.FirebaseAuth;
+
 
 public class ForgotPassFragment extends DialogFragment {
 
@@ -54,23 +56,22 @@ public class ForgotPassFragment extends DialogFragment {
     }
 
     private void checkUserInDatabase(String studNumber, String emailAd) {
-        databaseReference.child(studNumber).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.orderByChild("StudentNumber").equalTo(studNumber).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
-                    String savedEmail = dataSnapshot.child("EmailAddress").getValue(String.class);
+                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                        // For each user with matching student number
+                        String savedEmail = userSnapshot.child("EmailAddress").getValue(String.class);
 
-                    if (savedEmail != null && savedEmail.equals(emailAd)) {
-                        // Email matches, show the phone number
-                        String phoneNumber = dataSnapshot.child("PhoneNumber").getValue(String.class);
-                        if (phoneNumber != null) {
-                            Toast.makeText(getActivity(), "Phone number: " + phoneNumber, Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(getActivity(), "Phone number not available", Toast.LENGTH_SHORT).show();
+                        if (savedEmail != null && savedEmail.equals(emailAd)) {
+                            // Email matches, initiate password reset
+                            sendPasswordResetEmail(savedEmail);
+                            return; // Break out of the loop if a match is found
                         }
-                    } else {
-                        Toast.makeText(getActivity(), "Email address does not match", Toast.LENGTH_SHORT).show();
                     }
+                    // If no match is found after looping through all users
+                    Toast.makeText(getActivity(), "Email address does not match", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(), "Student number not found", Toast.LENGTH_SHORT).show();
                 }
@@ -81,5 +82,17 @@ public class ForgotPassFragment extends DialogFragment {
                 Toast.makeText(getActivity(), "Database error: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void sendPasswordResetEmail(String email) {
+        FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getActivity(), "Reset password email sent to " + email, Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "Failed to send reset password email. Check the email address.", Toast.LENGTH_SHORT).show();
+                    }
+                    dismiss();
+                });
     }
 }

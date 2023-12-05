@@ -86,7 +86,7 @@ public class HomeFragment extends Fragment {
 
     private void fetchDataFromFirebase() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String userStudentNumber = (user != null) ? user.getEmail().split("@")[0] : "";
+        String userStudentNumber = (user != null) ? user.getUid(): "";
         DatabaseReference userReference = FirebaseDatabase.getInstance().getReference().child("Users")
                 .child(userStudentNumber)
                 .child("FullName");

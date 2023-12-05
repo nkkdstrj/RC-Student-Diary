@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText studentNumber, passwordEditText;
+    private EditText EmailAddress, passwordEditText;
     private Button loginButton;
     private FirebaseAuth mAuth;
     private TextView ForgotPasswordButton;
@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Initialize UI elements and Firebase authentication
         ForgotPasswordButton = findViewById(R.id.forgotPass);
-        studentNumber = findViewById(R.id.studNum);
+        EmailAddress = findViewById(R.id.emailAddress);
         passwordEditText = findViewById(R.id.editTextPassword);
         loginButton = findViewById(R.id.LoginButton);
         mAuth = FirebaseAuth.getInstance();
@@ -47,16 +47,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void loginUser() {
-        String userNumber = studentNumber.getText().toString().trim();
+        String userName = EmailAddress.getText().toString().trim();
         String userPassword = passwordEditText.getText().toString().trim();
 
-        if (TextUtils.isEmpty(userNumber) || TextUtils.isEmpty(userPassword)) {
+        if (TextUtils.isEmpty(userName) || TextUtils.isEmpty(userPassword)) {
             showToast("Please fill in all the details.");
         } else {
-            if (!userNumber.contains("@")) {
-                userNumber += "@rc.edu";
+            if (!userName.contains("@")) {
+                userName += "@gmail.com";
             }
-            signInUser(userNumber, userPassword);
+            signInUser(userName, userPassword);
         }
     }
 
