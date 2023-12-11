@@ -20,7 +20,7 @@
             android:clickable="true"
             android:onClick="onLeftImageClick"
             android:src="@drawable/baseline_notifications_active_24"
-            app:tint="#1e329d" />
+            app:tint="#B4E4FD" />
     </LinearLayout>
 
     <!-- Create a vertical LinearLayout for the existing content -->

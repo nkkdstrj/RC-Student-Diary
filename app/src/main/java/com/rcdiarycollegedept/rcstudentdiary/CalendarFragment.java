@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,17 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,11 +34,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.text.SimpleDateFormat;
 
 public class CalendarFragment extends Fragment implements ReminderAdapter.OnReminderDeleteListener, ReminderAdapter.OnReminderEditListener {
 
@@ -45,6 +49,8 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
     private FirebaseAuth mAuth;
     private ImageButton addReminder;
     private ReminderAdapter reminderAdapter;
+    private TextView noReminderText;
+    private ImageView noPersonalReminder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -65,6 +71,8 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
     }
 
     private void initializeViews(View view) {
+        noPersonalReminder = view.findViewById(R.id.noReminderImage);
+        noReminderText = view.findViewById(R.id.noRemindersTextView);
         calendarView = view.findViewById(R.id.CalView);
         addReminder = view.findViewById(R.id.addButton);
         reminderAdapter = new ReminderAdapter(this, this);
@@ -130,6 +138,10 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
                 reminderAdapter.addReminder(newReminder);
                 reminderAdapter.notifyDataSetChanged();
                 Toast.makeText(getContext(), "Reminder Saved.", Toast.LENGTH_SHORT).show();
+
+                boolean recyclerViewHasItems = reminderAdapter.getItemCount() > 0;
+                noReminderText.setVisibility(recyclerViewHasItems ? View.GONE : View.VISIBLE);
+                noPersonalReminder.setVisibility(recyclerViewHasItems ? View.GONE : View.VISIBLE);
             } else {
                 Toast.makeText(getContext(), "Event name is empty.", Toast.LENGTH_SHORT).show();
             }
@@ -165,6 +177,10 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
                         }
                     }
                     reminderAdapter.notifyDataSetChanged();
+                    boolean recyclerViewHasItems = reminderAdapter.getItemCount() > 0;
+                    noReminderText.setVisibility(recyclerViewHasItems ? View.GONE : View.VISIBLE);
+                    noPersonalReminder.setVisibility(recyclerViewHasItems ? View.GONE : View.VISIBLE);
+
                 }
 
                 @Override
@@ -204,6 +220,9 @@ public class CalendarFragment extends Fragment implements ReminderAdapter.OnRemi
             databaseReference.child(reminder.getDate()).child(reminder.getId()).removeValue();
             reminderAdapter.reminders.remove(reminder);
             reminderAdapter.notifyDataSetChanged();
+            boolean recyclerViewHasItems = reminderAdapter.getItemCount() > 0;
+            noReminderText.setVisibility(recyclerViewHasItems ? View.GONE : View.VISIBLE);
+            noPersonalReminder.setVisibility(recyclerViewHasItems ? View.GONE : View.VISIBLE);
         }
     }
 

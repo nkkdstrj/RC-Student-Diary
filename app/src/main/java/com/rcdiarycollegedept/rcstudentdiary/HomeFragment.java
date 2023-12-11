@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -27,15 +28,16 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class HomeFragment extends Fragment {
 
-    private TextView nameTextView, dayTextView, dateTextView, triviaText;
+    private TextView nameTextView, dayTextView, dateTextView, triviaText, noteNumberTextView,reminderNumberTextView;
     private ProgressBar nameProgressBar, dayProgressBar, dateProgressBar, triviaProgressBar;
-    private DatabaseReference databaseReference, triviaReference;
+    private DatabaseReference databaseReference, triviaReference,notesReference,remindersReference;
     private RecyclerView publicReminderRecyclerView;
     private PublicReminderAdapter publicReminderAdapter;
     private List<PublicReminder> publicReminderList = new ArrayList<>();
     private List<Integer> usedTriviaIndices = new ArrayList<>();
     private int totalTriviaItems = 0;
     private TextView noRemindersTextView;
+    private ImageView noReminderView;
 
     private boolean newReminderFetched = false; // Flag to track new reminders
 
@@ -46,12 +48,17 @@ public class HomeFragment extends Fragment {
         initializeViews(rootView);
         setDayAndDate();
         fetchDataFromFirebase();
+        fetchTotalNotesCount();
+        fetchTotalRemindersCount();
         fetchPublicRemindersFromFirebase();
         fetchTotalTriviaItemsCount();
         return rootView;
     }
 
     private void initializeViews(View rootView) {
+        noReminderView = rootView.findViewById(R.id.noReminderImage);
+        reminderNumberTextView = rootView.findViewById(R.id.reminderNumber);
+        noteNumberTextView = rootView.findViewById(R.id.noteNumber);
         nameTextView = rootView.findViewById(R.id.NameTextView);
         dayTextView = rootView.findViewById(R.id.dayTextView);
         dateTextView = rootView.findViewById(R.id.dateTextView);
@@ -145,6 +152,8 @@ public class HomeFragment extends Fragment {
 
                 // Update the visibility of noRemindersTextView
                 noRemindersTextView.setVisibility(publicReminderList.isEmpty() ? View.VISIBLE : View.GONE);
+                noReminderView.setVisibility(publicReminderList.isEmpty() ? View.VISIBLE : View.GONE);
+
 
                 publicReminderAdapter.notifyDataSetChanged();
 
@@ -162,6 +171,57 @@ public class HomeFragment extends Fragment {
                 dayTextView.setVisibility(View.VISIBLE);
             }
         });
+    }
+
+    private void fetchTotalNotesCount() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userStudentNumber = (user != null) ? user.getUid() : "";
+        notesReference = FirebaseDatabase.getInstance().getReference().child("Notes").child(userStudentNumber);
+
+        notesReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                long totalNotes = dataSnapshot.getChildrenCount();
+                updateNoteCount(totalNotes);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error
+            }
+        });
+    }
+    private void updateNoteCount(long count) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                noteNumberTextView.setText(String.valueOf(count));
+            });
+        }
+    }
+    private void fetchTotalRemindersCount() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String userStudentNumber = (user != null) ? user.getUid() : "";
+        remindersReference = FirebaseDatabase.getInstance().getReference().child("Calendar").child(userStudentNumber);
+
+        remindersReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                long totalReminders = dataSnapshot.getChildrenCount();
+                updateReminderCount(totalReminders);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle the error
+            }
+        });
+    }
+    private void updateReminderCount(long count2) {
+        if (getActivity() != null) {
+            getActivity().runOnUiThread(() -> {
+                reminderNumberTextView.setText(String.valueOf(count2));
+            });
+        }
     }
 
     private void fetchTotalTriviaItemsCount() {
@@ -198,7 +258,7 @@ public class HomeFragment extends Fragment {
         if (randomIndex != -1) {
             usedTriviaIndices.add(randomIndex);
 
-            String triviaKey = "T" + (randomIndex + 1);
+            String triviaKey = "T_" + String.format("%03d", randomIndex + 1);
             DatabaseReference randomTriviaReference = triviaReference.child(triviaKey);
 
             triviaProgressBar.setVisibility(View.VISIBLE);

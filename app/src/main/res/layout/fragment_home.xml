@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/home_background"
     tools:context=".HomeFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -17,7 +18,7 @@
             android:layout_marginTop="28dp"
             android:fontFamily="@font/righteous"
             android:text="HOME"
-            android:textColor="#1e329d"
+            android:textColor="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintStart_toStartOf="parent"
@@ -25,85 +26,136 @@
 
         <LinearLayout
             android:id="@+id/linearLayout2"
-            android:layout_width="match_parent"
-            android:layout_height="113dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:orientation="vertical"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/rounded_shadow_background"
-            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.473"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView4">
 
             <ImageView
-                android:id="@+id/imageView2"
-                android:layout_width="84dp"
-                android:layout_height="94dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="16dp"
-                android:paddingEnd="15dp"
-                android:src="@drawable/baseline_person_24"
-                app:tint="@color/white" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/avatar_icon" />
+
+            <ProgressBar
+                android:id="@+id/nameProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/NameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:fontFamily="@font/montserrat_semibold"
+                android:text="TextView"
+                android:textColor="@color/white"
+                android:textSize="25sp" />
+
+            <ProgressBar
+                android:id="@+id/dayProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/dayTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/montserrat_bold"
+                android:text="TextView"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+
+            <ProgressBar
+                android:id="@+id/dateProgressBar"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/dateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat_semibold"
+                android:text="TextView"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_weight="1"
-                android:orientation="vertical">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
 
-                <ProgressBar
-                    android:id="@+id/dayProgressBar"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
+                <LinearLayout
+                    android:id="@+id/totalReminder"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:visibility="gone" />
+                    android:background="@android:drawable/dialog_holo_light_frame"
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/dayTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:fontFamily="@font/montserrat_bold"
-                    android:text="TextView"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:fontFamily="@font/poppins"
+                        android:text="Your Reminders:"
+                        android:textColor="#60c6fb" />
 
-                <ProgressBar
-                    android:id="@+id/dateProgressBar"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
+                    <TextView
+                        android:id="@+id/reminderNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="No."
+                        android:textColor="#B4E4FD"
+                        android:textSize="48sp" />
+                </LinearLayout>
 
-                <TextView
-                    android:id="@+id/dateTextView"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/totalNote"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/montserrat"
-                    android:text="TextView"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
+                    android:background="@android:drawable/dialog_holo_light_frame"
+                    android:orientation="vertical">
 
-                <ProgressBar
-                    android:id="@+id/nameProgressBar"
-                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:fontFamily="@font/poppins"
+                        android:text="Your Notes:"
+                        android:textColor="#60c6fb" />
 
-                <TextView
-                    android:id="@+id/NameTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:fontFamily="@font/montserrat_semibold"
-                    android:text="TextView"
-                    android:textColor="@color/white"
-                    android:textSize="20sp" />
+                    <TextView
+                        android:id="@+id/noteNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="No."
+                        android:textColor="#B4E4FD"
+                        android:textSize="48sp" />
+                </LinearLayout>
+
             </LinearLayout>
+
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
@@ -113,7 +165,6 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="8dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/rounded_shadow_background"
             android:backgroundTint="#B4E4FD"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.529"
@@ -130,25 +181,36 @@
             android:layout_marginTop="16dp"
             android:fontFamily="@font/poppins_bold"
             android:text="No reminders for today."
-            android:textColor="@color/white"
+            android:textColor="#B4E4FD"
             android:textSize="18sp"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
+        <ImageView
+            android:id="@+id/noReminderImage"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:src="@drawable/no_reminder_clip"
+            android:visibility="gone"
+            android:layout_marginTop="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/noRemindersTextView" />
+
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
-            android:background="@drawable/rounded_shadow_background"
+            android:background="@android:drawable/dialog_holo_light_frame"
             android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/publicReminder" >
+            app:layout_constraintTop_toBottomOf="@+id/publicReminder">
 
             <TextView
                 android:id="@+id/textView9"
@@ -157,7 +219,7 @@
                 android:fontFamily="@font/montserrat_bold"
                 android:paddingStart="10dp"
                 android:text="Did you know?"
-                android:textColor="@color/white"
+                android:textColor="#B4E4FD"
                 android:textSize="20sp" />
 
             <ProgressBar
